@@ -6,7 +6,7 @@ Xilinx Zynq based quadrocopter with digital stereo video stream for virtual real
 - Xilinx Zynq SoC Processor (Dual-Core ARM Cortex-A9 MPCore up to 866 MHz + Artix 7 FPGA fabric)
 - IMU/Gyro MPU-6000 + mag sensors included
 - 16 MiByte flash and microSD slot as boot options
-- 256 MiByte DDR3+RAM
+- 256 MiByte DDR3 RAM
 - I²C EEPROM
 - JTAG debugger interface
 - nrFL24L01+ 2.4 GHz Transceiver with SMA antenna connector
