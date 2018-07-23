@@ -1,8 +1,8 @@
 # zynqAIO
-Xilinx Zynq based quadrocopter with digital stereo video stream for virtual reality headset flying
+Xilinx Zynq based all-in-one quadrocopter flight controller with digital stereo video stream for virtual reality headset flying
 
 <b>Hardware</b>
-- All-In-One flight controller PCB with ~ 54 x 46 mm size and 30 x 30 mm mount hole distance
+- PCB with ~ 54 x 46 mm size and 30 x 30 mm mount hole distance
 - Xilinx Zynq SoC Processor (Dual-Core ARM Cortex-A9 MPCore up to 866 MHz + Artix 7 FPGA fabric)
 - IMU/Gyro MPU-6000 + mag sensors included
 - 16 MiByte flash and microSD slot as boot options
@@ -13,7 +13,6 @@ Xilinx Zynq based quadrocopter with digital stereo video stream for virtual real
 - 2x MIPI CSI-2 camera module socket (Raspberry PI camera module compatible connector)
 - 2.4 GHz, 2 x 2 MIMO Wifi for 100 Mbps data rate with two SMA antenna connectors
 - 4x BLDC motor connection jumpers (DShot600 protocol)
-- 4x additional connection jumpers spare
 
 <b>Software</b>
 - Flight controller can run either on MicroBlaze in FPGA or on ARM core 0 (driverless implementation)
@@ -25,7 +24,6 @@ Xilinx Zynq based quadrocopter with digital stereo video stream for virtual real
 - MIPI CSI-2 camera signal decoding in FPGA fabric
 - Access to camera module registers via I²C 
 - MPEG codec in FPGA for single frame compression on both video streams
-- on-the-fly resizing of video content depending on wifi signal strength
-- Switch to grayscale video depending on wifi signal strength
+- On-the-fly resizing of video content depending on wifi signal strengt
 - Side-By-Side transmission of stereo video content
 - SDIO interface to wifi IC
