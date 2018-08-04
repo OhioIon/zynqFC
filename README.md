@@ -1,29 +1,60 @@
 # zynqAIO
-Xilinx Zynq based all-in-one quadrocopter flight controller with digital stereo video stream for virtual reality headset flying
+Xilinx Zynq based all-in-one quadrocopter open-hardware open-software flight controller + camera + videro receiver with digital stereo video stream for virtual reality headset flying
+
+<h1>Flight Controller - zynqAIO_FC</h1>
 
 <b>Hardware</b>
-- PCB with ~ 54 x 46 mm size and 30 x 30 mm mount hole distance
+- PCB with ~ 54 x 46 mm size and 30.5 x 30.5 mm mount hole distance
 - Xilinx Zynq SoC Processor (Dual-Core ARM Cortex-A9 MPCore up to 866 MHz + Artix 7 FPGA fabric)
-- IMU/Gyro MPU-6000 + mag sensors included
-- 16 MiByte flash and microSD slot as boot options
+- Bosch Sensortec BMX160 as IMU/Gyro/Mag
+- 16 MiByte flash and microSD slot
 - 256 MiByte DDR3 RAM
 - I²C EEPROM
 - JTAG debugger interface
 - nrFL24L01+ 2.4 GHz Transceiver with SMA antenna connector
-- 2x MIPI CSI-2 camera module socket (Raspberry PI camera module compatible connector)
-- 2.4 GHz, 2 x 2 MIMO Wifi for 100 Mbps data rate with two SMA antenna connectors
-- 4x BLDC motor connection jumpers (DShot600 protocol)
+- 2x camera connector for stereo video stream (MIPI CSI-2)
+- AD9361 RF transceiver chipset (2.4 GHz, 2 x 2 MIMO) to stream digital stereo video with 2x SMA antenna connector
+- 4x BLDC motor connection jumpers (DShot1200 protocol)
+- 1x GPS module connector
+
+<b>FPGA</b>
+- DShot protocol peripheral
+- MIPI CSI-2 receiver
+- Video compression (MJPEG/H.264/H.265 -> whatever is feasible in Zynq Artix fabric)
+- Stereo OSD overlay
+- Dynamic video data rate adjust (resize, sub-sampling, reduced color space) depending on VTX signal strength
+- VTX modulation (LDPC, OFDM, IFFT)
 
 <b>Software</b>
-- Flight controller can run either on MicroBlaze in FPGA or on ARM core 0 (driverless implementation)
-- DShot protocol offload into FPGA hardware
-- Access to gyro/imu via SPI peripheral
-- Access to mag via I²C peripheral
-- Access to 2.4 GHz nrFL24L01+ transciever via SPI
-- JTAG debugging + JTAG UART for STDOUT
-- MIPI CSI-2 camera signal decoding in FPGA fabric
-- Access to camera module registers via I²C 
-- MPEG codec in FPGA for single frame compression on both video streams
-- On-the-fly resizing of video content depending on wifi signal strengt
-- Side-By-Side transmission of stereo video content
-- SDIO interface to wifi IC
+- Flight controller can run on MicroBlaze in FPGA or on ARM core 0 
+- Use existing open-source FC -> TBD
+- Minimum function: acro-mode, level-mode
+- Boot from flash, microSD or JTAG
+
+<h1>Stereo Video Board - zynqAIO_DUALCAM</h1>
+
+<b>Hardware</b>
+- CMOS camera board with dual OV5647 (1080p30, 720p60)
+- 2x camera connector for stereo video stream (MIPI CSI-2)
+
+<h1>Video Receiver Board - zynqAIO_VRX</h1>
+
+<b>Hardware</b>
+- Xilinx Zynq SoC Processor (Dual-Core ARM Cortex-A9 MPCore up to 866 MHz + Artix 7 FPGA fabric)
+- AD9361 RF transceiver chipset (2.4 GHz, 2 x 2 MIMO) to receive digital stereo video with 2x SMA antenna connector
+- nrFL24L01+ 2.4 GHz Transceiver with SMA antenna connector
+- 16 MiByte flash and microSD slot
+- 256 MiByte DDR3 RAM
+- JTAG debugger interface
+- I²C EEPROM
+- 1x GPS module connector
+- 2x USB
+- 1x HDMI out for stereo image (FPV/VR googles)
+- 1x HDMI out for mono image (screen, beamer)
+
+<b>FPGA</b>
+- VTX demodulation 
+- Video decompression
+- Video size adjust (upsampling to 1080p, regardless of input size)
+- HDMI out
+
