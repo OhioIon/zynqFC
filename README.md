@@ -1,5 +1,5 @@
 # zynqAIO
-Xilinx Zynq based all-in-one quadrocopter open-hardware open-software flight controller + camera + videro receiver with digital stereo video stream for virtual reality headset flying
+Xilinx Zynq based all-in-one quadrocopter open-hardware open-software flight controller + camera + video receiver with digital stereo video stream for virtual reality headset flying
 
 <h1>Flight Controller - zynqAIO_FC</h1>
 
@@ -20,7 +20,7 @@ Xilinx Zynq based all-in-one quadrocopter open-hardware open-software flight con
 <b>FPGA</b>
 - DShot protocol peripheral
 - MIPI CSI-2 receiver
-- Video compression (MJPEG/H.264/H.265 -> whatever is feasible in Zynq Artix fabric)
+- Video compression (MJPEG/H.264/H.265/AV1 -> whatever is feasible in Zynq Artix fabric)
 - Stereo OSD overlay
 - Dynamic video data rate adjust (resize, sub-sampling, reduced color space) depending on VTX signal strength
 - VTX modulation (LDPC, OFDM, IFFT)
