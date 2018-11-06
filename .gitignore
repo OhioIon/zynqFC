@@ -1,0 +1,11 @@
+/_fpga/vivado/zynqAIO.xpr
+/_fpga/vivado/*.log
+/_fpga/vivado/*.jou
+/_fpga/vivado/.Xil
+/_fpga/vivado/zynqAIO.cache
+/_fpga/vivado/zynqAIO.hw
+/_fpga/vivado/zynqAIO.ip_user_files
+/_fpga/vivado/zynqAIO.runs
+/_fpga/vivado/zynqAIO.sim
+/_fpga/vivado/zynqAIO.srcs
+/_fpga/vivado/zynqAIO.tmp
