@@ -4,8 +4,8 @@ Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p sid
 <b>Hardware</b>
 - PCB with ~ 54 x 46 mm size and 30.5 x 30.5 mm mount hole distance
 - Xilinx Zynq SoC Processor (Dual-Core ARM Cortex-A9 MPCore up to 866 MHz + Artix 7 FPGA fabric)
-- MPU-6000 as IMU/Gyro
-- HMC5883L as Magnetometer
+- MPU-6000 as Gyro
+- BMX160 as IMU/Mag
 - 16 MiByte flash and microSD slot
 - 256 MiByte DDR3 RAM
 - I²C EEPROM
