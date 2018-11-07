@@ -11,7 +11,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;
 use UNISIM.VCOMPONENTS.ALL;
-entity main_wrapper is
+entity toplevel is
   port (
     DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
     DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
@@ -36,9 +36,9 @@ entity main_wrapper is
     FIXED_IO_ps_srstb : inout STD_LOGIC;
     dshot_0 : out STD_LOGIC
   );
-end main_wrapper;
+end toplevel;
 
-architecture STRUCTURE of main_wrapper is
+architecture STRUCTURE of toplevel is
   component main is
   port (
     DDR_cas_n : inout STD_LOGIC;
