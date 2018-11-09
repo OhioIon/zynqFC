@@ -61,6 +61,9 @@ architecture Behavioral of dshot_tb is
   signal axil_rresp_out    :  std_logic_vector(1 downto 0);
   signal axil_rvalid_out   :  std_logic;
   signal axil_rready_in    :  std_logic := '0';
+  
+  -- Reference Output
+  signal dshot_out_ref     : std_logic := '0';
 
 begin
 
@@ -95,7 +98,7 @@ port map (
 );
 
 -- Create clock and reset signal
-axil_aclk_in    <= not axil_aclk_in after 5 ns;
+axil_aclk_in    <= not axil_aclk_in after 2.5 ns;
 axil_aresetn_in <= '1' after 20 ns;
 
 -- Simulate AXI4-Lite write access
@@ -103,13 +106,123 @@ axil_bready_in <= '1';
 process 
 begin
   wait for 40 ns;
-  axil_awaddr_in <= x"00000008"; axil_awvalid_in <= '1'; axil_wdata_in <= x"00000054"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 20 ns; -- cntBitTot = 84
-  axil_awaddr_in <= x"0000000C"; axil_awvalid_in <= '1'; axil_wdata_in <= x"0000001F"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 20 ns; -- cntT0H    = 31
-  axil_awaddr_in <= x"00000010"; axil_awvalid_in <= '1'; axil_wdata_in <= x"0000003E"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 20 ns; -- cntT1H    = 62
-  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '0'; axil_wdata_in <= x"00000000"; axil_wstrb_in <= x"0"; axil_wvalid_in <= '0'; wait for 20 ns;
-  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '1'; axil_wdata_in <= x"00000793"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 20 ns; -- data = 1939, tel = 0, START!
-  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '0'; axil_wdata_in <= x"00000000"; axil_wstrb_in <= x"0"; axil_wvalid_in <= '0'; wait for 20 ns;
+  axil_awaddr_in <= x"00000008"; axil_awvalid_in <= '1'; axil_wdata_in <= x"000000A7"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 10 ns; -- cntBitTot = 167
+  axil_awaddr_in <= x"0000000C"; axil_awvalid_in <= '1'; axil_wdata_in <= x"0000003E"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 10 ns; -- cntT0H    = 62
+  axil_awaddr_in <= x"00000010"; axil_awvalid_in <= '1'; axil_wdata_in <= x"0000007D"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 10 ns; -- cntT1H    = 125
+  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '0'; axil_wdata_in <= x"00000000"; axil_wstrb_in <= x"0"; axil_wvalid_in <= '0'; wait for 10 ns;
+  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '1'; axil_wdata_in <= x"00000793"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 10 ns; -- data = 1939, tel = 0, START!
+  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '0'; axil_wdata_in <= x"00000000"; axil_wstrb_in <= x"0"; axil_wvalid_in <= '0'; wait for 10 ns;
+  wait for 15 us;
+  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '1'; axil_wdata_in <= x"80000050"; axil_wstrb_in <= x"F"; axil_wvalid_in <= '1'; wait for 10 ns; -- data = 80, tel = 1, START!
+  axil_awaddr_in <= x"00000000"; axil_awvalid_in <= '0'; axil_wdata_in <= x"00000000"; axil_wstrb_in <= x"0"; axil_wvalid_in <= '0'; wait for 10 ns;
   wait;
+end process;
+
+-- Generate reference signal according to DShot1200 timing
+process
+begin
+  wait for 115 ns;
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+  
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+    
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+  
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L
+   
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+    
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L
+    
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+    
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+ 
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L
+  
+  wait for 1.66 us;
+  
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+    
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+      
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+      
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+    
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+    
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+    
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+      
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+      
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L  
+        
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+    
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+    
+  dshot_out_ref <= '1'; wait for 312.5 ns; -- T0H
+  dshot_out_ref <= '0'; wait for 522.5 ns; -- T0L
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L  
+  
+  dshot_out_ref <= '1'; wait for 625 ns; -- T1H
+  dshot_out_ref <= '0'; wait for 210 ns; -- T1L
+
+  wait;
+   
 end process;
 
 end Behavioral;

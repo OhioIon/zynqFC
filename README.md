@@ -13,7 +13,7 @@ Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p sid
 - nrFL24L01+ 2.4 GHz Transceiver with SMA antenna connector
 - 2x camera connector for stereo video stream (MIPI CSI-2)
 - AD9361 SDR RF transceiver chipset (2.4 GHz, 2 x 2 MIMO) to stream digital stereo video with 2x SMA antenna connector
-- 4x BLDC motor connection jumpers (DShot1200 protocol)
+- 4x BLDC motor connection jumpers (DShot600 protocol)
 - 1x GPS module connector
 
 <b>FPGA</b>

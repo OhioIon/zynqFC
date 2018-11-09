@@ -30,19 +30,26 @@ architecture arch_imp of dshot_stMac is
 
   type stateMachine is (
     Idle,
+    Delay,
     Data,
     ReqTele,
     Crc
   );
 
-  signal bitCount_u16    : unsigned(15 downto 0);        -- Bit-Time Counter
-  signal bit_u16         : unsigned(15 downto 0);        -- High-Time for Current Bit
-  signal i_cntBitTot_u16 : unsigned(15 downto 0);        -- Tick Count for Total Bit
-  signal i_cntT0H_u16    : unsigned(15 downto 0);        -- Tick Count for Zero Bit Value
-  signal i_cntT1H_u16    : unsigned(15 downto 0);        -- Tick Count for One Bit Value
-  signal crc_u4          : std_logic_vector(3 downto 0); -- CRC
-  signal stMac           : stateMachine;                 -- Waveform state machine
-  signal idx_u4          : unsigned(3 downto 0);         -- Bit index for current bit             
+  -- Bit Wavform Geneartion
+  signal bitCount_u16    : unsigned(15 downto 0) := (others=>'0'); -- Bit-Time Counter
+  signal bit_u16         : unsigned(15 downto 0) := (others=>'0'); -- High-Time for Current Bit
+  signal i_cntBitTot_u16 : unsigned(15 downto 0) := (others=>'0'); -- Tick Count for Total Bit
+  signal i_cntT0H_u16    : unsigned(15 downto 0) := (others=>'0'); -- Tick Count for Zero Bit Value
+  signal i_cntT1H_u16    : unsigned(15 downto 0) := (others=>'0'); -- Tick Count for One Bit Value
+  signal flgEnaCntr_l    : std_logic := '0';                       -- Enable Counter
+  signal dshot0_l        : std_logic := '0';                       -- DShot waveform for 0 bit value
+  signal dshot1_l        : std_logic := '0';                       -- DShot waveform for 1 bit value
+  
+  -- State Machine
+  signal crc_u4          : std_logic_vector(3 downto 0) := x"0";   -- CRC
+  signal stMac           : stateMachine                 := Idle;   -- Waveform state machine
+  signal idx_u4          : unsigned(3 downto 0)         := x"0";   -- Bit index for current bit             
 
 begin
 
@@ -54,16 +61,54 @@ begin
   i_cntT0H_u16    <= Unsigned(cntT0H_u16);
   i_cntT1H_u16    <= Unsigned(cntT1H_u16);
   
+  -- Bit Waveform Generation
+  process( aclk ) 
+  begin
+    if rising_edge(aclk) then 
+      if flgEnaCntr_l = '0' then
+        bitCount_u16 <= x"0001";
+        dshot0_l     <= '0';
+        dshot1_l     <= '0';
+      else
+        
+        -- Count Bit Time
+        if (bitCount_u16 < i_cntBitTot_u16) then
+          bitCount_u16 <= bitCount_u16 + 1;
+        else
+          bitCount_u16 <= x"0001";
+        end if;
+              
+        -- Bit 0 Waveform
+        if (bitCount_u16 <= i_cntT0H_u16) then
+          dshot0_l <= '1';
+        else
+          dshot0_l <= '0';
+        end if;
+        
+        -- Bit 1 Waveform
+        if (bitCount_u16 <= i_cntT1H_u16) then
+          dshot1_l <= '1';
+        else
+          dshot1_l <= '0';
+        end if;
+        
+      end if;
+    end if;
+  end process;
+  
+  -- Busy is singaled in case not idle
+  flgBusy_l <= '0' when (stMac = Idle) else '1';
+  
+  -- State Machine
   process( aclk ) 
   begin
     if rising_edge(aclk) then 
       if aresetn = '0' then
         -- Reset Signals
-        bitCount_u16 <= x"0000";
         stMac        <= Idle;
         idx_u4       <= x"0";
+        flgEnaCntr_l <= '0';
         -- Reset Outputs
-        flgBusy_l    <= '0';
         dshot_l      <= '0';
       else
       
@@ -72,102 +117,71 @@ begin
           when Idle =>
             if( flgStart_l = '1' ) then
               -- Start State Machine
-              flgBusy_l    <= '1';
-              dshot_l      <= '1';
-              stMac        <= Data;
-              bitCount_u16 <= x"0001";
-              idx_u4       <= x"A";
-              -- Assign first high time depending on data
-              if ( dshotData_u11(10) = '1' ) then
-                bit_u16 <= i_cntT1H_u16;
-              else 
-                bit_u16 <= i_cntT0H_u16;
-              end if;
+              flgEnaCntr_l <= '1';
+              stMac        <= Delay;
+              dshot_l      <= '0';
             end if;
             
+          when Delay =>
+            stMac  <= Data;
+            idx_u4 <= x"A";
+            dshot_l <= '0';
+            
           when Data =>
-            if( bitCount_u16 < bit_u16 ) then
-              -- High time
-              dshot_l      <= '1';
-              bitCount_u16 <= bitCount_u16 + 1;
-            elsif( bitCount_u16 < i_cntBitTot_u16 ) then
-              -- Low time
-              dshot_l      <= '0';
-              bitCount_u16 <= bitCount_u16 + 1;
-            else
-              -- Total time has passed
-              dshot_l <= '1';
+          
+            -- Forward bit waveform for current data bit
+            if (dshotData_u11(to_integer(idx_u4)) = '1') then
+              dshot_l <= dshot1_l;
+            else 
+              dshot_l <= dshot0_l;
+            end if;
+          
+            if( bitCount_u16 >= i_cntBitTot_u16 ) then
+              -- Bit time has passed
               if (idx_u4 /= x"0") then
                 -- There are still data bits
-                bitCount_u16 <= x"0001";
-                idx_u4       <= idx_u4 - 1;
-                if ( dshotData_u11(to_integer(idx_u4) - 1) = '1' ) then
-                  bit_u16 <= i_cntT1H_u16;
-                else 
-                  bit_u16 <= i_cntT0H_u16;
-                end if;
+                idx_u4 <= idx_u4 - 1;
               else
                 -- All data bits processed
                 stMac <= ReqTele;
-                bitCount_u16 <= x"0001";
-                if ( flgReqTele_l = '1' ) then
-                  bit_u16 <= i_cntT1H_u16;
-                else 
-                  bit_u16 <= i_cntT0H_u16;
-                end if;
               end if;  
             end if;  
             
           when ReqTele =>
-            if( bitCount_u16 < bit_u16 ) then
-              -- High time
-              dshot_l      <= '1';
-              bitCount_u16 <= bitCount_u16 + 1;
-            elsif( bitCount_u16 < i_cntBitTot_u16 ) then
-              -- Low time
-              dshot_l      <= '0';
-              bitCount_u16 <= bitCount_u16 + 1;
-            else
-              -- Total time has passed
-              dshot_l <= '1';
-              bitCount_u16 <= x"0001";
-              idx_u4       <= x"3";
-              stMac        <= Crc;
-              if ( crc_u4(3) = '1' ) then
-                bit_u16 <= i_cntT1H_u16;
-              else 
-                bit_u16 <= i_cntT0H_u16;
-              end if;
+          
+            -- Forward bit waveform for telemetry request bit
+            if (flgReqTele_l = '1') then
+              dshot_l <= dshot1_l;
+            else 
+              dshot_l <= dshot0_l;
+            end if;
+            
+            if( bitCount_u16 >= i_cntBitTot_u16 ) then
+              -- Bit time has passed
+              idx_u4  <= x"3";
+              stMac   <= Crc;
             end if;  
               
           when Crc =>
-            if( bitCount_u16 < bit_u16 ) then
-              -- High time
-              dshot_l      <= '1';
-              bitCount_u16 <= bitCount_u16 + 1;
-            elsif( bitCount_u16 < i_cntBitTot_u16 ) then
-              -- Low time
-              dshot_l      <= '0';
-              bitCount_u16 <= bitCount_u16 + 1;
-            else
-              -- Total time has passed
+          
+            -- Forward bit waveform for current CRC bit
+            if ( crc_u4(to_integer(idx_u4)) = '1' ) then
+              dshot_l <= dshot1_l;
+            else 
+              dshot_l <= dshot0_l;
+            end if;
+          
+            if( bitCount_u16 >= i_cntBitTot_u16 ) then
+              -- Bit time has passed
               if (idx_u4 /= x"0") then
                 -- There are still CRC bits
-                dshot_l <= '1';
-                bitCount_u16 <= x"0001";
-                idx_u4       <= idx_u4 - 1;
-                if ( crc_u4(to_integer(idx_u4) - 1) = '1' ) then
-                  bit_u16 <= i_cntT1H_u16;
-                else 
-                  bit_u16 <= i_cntT0H_u16;
-                end if;
+                idx_u4 <= idx_u4 - 1;
               else
                 -- All CRC bits processed
                 stMac        <= Idle;
-                bitCount_u16 <= x"0000";
                 idx_u4       <= x"0";
-                flgBusy_l    <= '0';
                 dshot_l      <= '0';
+                flgEnaCntr_l <= '0';
               end if;  
             end if;
             
