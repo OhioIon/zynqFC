@@ -28,6 +28,6 @@ Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p sid
 - Flight controller on ARM Cortex-A9 with 8 kHz looptime
 - Minimum function: acro-mode, level-mode
 - Boot from flash, microSD or JTAG (development)
-- JTAG UART for debugging
+
 
 
