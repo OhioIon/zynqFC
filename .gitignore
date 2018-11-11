@@ -21,3 +21,5 @@
 /_sw/zynqAIO_fsbl/Debug
 /_sw/zynqAIO_fsbl/Release
 /_hw/*.bak
+/_hw/*.bck
+/Packages
