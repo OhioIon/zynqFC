@@ -2,7 +2,8 @@
 Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p side-by-side digital video transmission.
 
 
-> STILL UNDER DEVELOPMENT
+> STILL UNDER DEVELOPMENT!
+> master branch not stable!
 
 
 
