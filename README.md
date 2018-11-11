@@ -1,6 +1,11 @@
 # zynqAIO
 Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p side-by-side digital video transmission.
 
+<aside class="warning">
+STILL UNDER DEVELOPMENT
+</aside>
+
+
 <b>Hardware</b>
 - PCB with ~ 54 x 46 mm size and 30.5 x 30.5 mm mount hole distance
 - Xilinx Zynq SoC Processor (Dual-Core ARM Cortex-A9 MPCore up to 866 MHz + Artix 7 FPGA fabric)
