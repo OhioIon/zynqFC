@@ -20,3 +20,4 @@
 /_sw/toplevel_hw_platform_0
 /_sw/zynqAIO_fsbl/Debug
 /_sw/zynqAIO_fsbl/Release
+/_hw/*.bak

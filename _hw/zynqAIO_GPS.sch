@@ -1,0 +1,248 @@
+EESchema Schematic File Version 4
+LIBS:zynqAIO-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 13 14
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L conn:Conn_01x04 J?
+U 1 1 5BA6F8E7
+P 8250 3950
+F 0 "J?" H 8250 4150 50  0000 C CNN
+F 1 "Conn_01x04" H 8250 3650 50  0000 C CNN
+F 2 "" H 8250 3950 50  0001 C CNN
+F 3 "" H 8250 3950 50  0001 C CNN
+	1    8250 3950
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR?
+U 1 1 5BA6F9CE
+P 6550 2850
+F 0 "#PWR?" H 6550 2700 50  0001 C CNN
+F 1 "+5V" H 6550 2990 50  0000 C CNN
+F 2 "" H 6550 2850 50  0001 C CNN
+F 3 "" H 6550 2850 50  0001 C CNN
+	1    6550 2850
+	1    0    0    -1  
+$EndComp
+$Comp
+L zynqAIO:GTL2002 U?
+U 1 1 5BA71C4C
+P 5550 3500
+F 0 "U?" H 5550 3500 60  0000 C CNN
+F 1 "GTL2002" H 5550 3600 60  0000 C CNN
+F 2 "" H 5550 3500 60  0001 C CNN
+F 3 "" H 5550 3500 60  0001 C CNN
+	1    5550 3500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BA71D45
+P 6550 3050
+F 0 "R?" V 6630 3050 50  0000 C CNN
+F 1 "200" V 6550 3050 50  0000 C CNN
+F 2 "" V 6480 3050 50  0001 C CNN
+F 3 "" H 6550 3050 50  0001 C CNN
+	1    6550 3050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 5BA71D93
+P 6550 3450
+F 0 "C?" H 6575 3550 50  0000 L CNN
+F 1 "100nF" H 6575 3350 50  0000 L CNN
+F 2 "" H 6588 3300 50  0001 C CNN
+F 3 "" H 6550 3450 50  0001 C CNN
+	1    6550 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5BA71DCB
+P 6550 3650
+F 0 "#PWR?" H 6550 3400 50  0001 C CNN
+F 1 "GND" H 6550 3500 50  0000 C CNN
+F 2 "" H 6550 3650 50  0001 C CNN
+F 3 "" H 6550 3650 50  0001 C CNN
+	1    6550 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6550 3650 6550 3600
+Wire Wire Line
+	6550 3300 6550 3200
+Wire Wire Line
+	6550 2900 6550 2850
+Wire Wire Line
+	6550 3250 6200 3250
+Wire Wire Line
+	6200 3250 6200 3800
+Connection ~ 6550 3250
+Wire Wire Line
+	6200 3650 6050 3650
+Wire Wire Line
+	6200 3800 6050 3800
+Connection ~ 6200 3650
+Wire Wire Line
+	6150 4050 6150 4100
+Wire Wire Line
+	6150 4100 6050 4100
+Text Label 7350 3950 0    60   ~ 0
+TX
+Text Label 7350 4050 0    60   ~ 0
+RX
+Wire Wire Line
+	8050 3850 7850 3850
+Wire Wire Line
+	7850 3850 7850 3700
+$Comp
+L power:+5V #PWR?
+U 1 1 5BA71FB0
+P 7850 3700
+F 0 "#PWR?" H 7850 3550 50  0001 C CNN
+F 1 "+5V" H 7850 3840 50  0000 C CNN
+F 2 "" H 7850 3700 50  0001 C CNN
+F 3 "" H 7850 3700 50  0001 C CNN
+	1    7850 3700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8050 4150 7850 4150
+Wire Wire Line
+	7850 4150 7850 4300
+$Comp
+L power:GND #PWR?
+U 1 1 5BA72060
+P 7850 4300
+F 0 "#PWR?" H 7850 4050 50  0001 C CNN
+F 1 "GND" H 7850 4150 50  0000 C CNN
+F 2 "" H 7850 4300 50  0001 C CNN
+F 3 "" H 7850 4300 50  0001 C CNN
+	1    7850 4300
+	1    0    0    -1  
+$EndComp
+Text GLabel 3400 3950 0    60   Input ~ 0
+GPS_UART_TX
+Wire Wire Line
+	3400 3950 4050 3950
+Text GLabel 3400 4100 0    60   Input ~ 0
+GPS_UART_RX
+Wire Wire Line
+	3400 4100 4050 4100
+$Comp
+L power:GND #PWR?
+U 1 1 5BA7260F
+P 4950 3500
+F 0 "#PWR?" H 4950 3250 50  0001 C CNN
+F 1 "GND" H 4950 3350 50  0000 C CNN
+F 2 "" H 4950 3500 50  0001 C CNN
+F 3 "" H 4950 3500 50  0001 C CNN
+	1    4950 3500
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	4850 3650 5050 3650
+Wire Wire Line
+	4950 3650 4950 3500
+$Comp
+L power:+3V3 #PWR?
+U 1 1 5BA7263D
+P 4450 3500
+F 0 "#PWR?" H 4450 3350 50  0001 C CNN
+F 1 "+3V3" H 4450 3640 50  0000 C CNN
+F 2 "" H 4450 3500 50  0001 C CNN
+F 3 "" H 4450 3500 50  0001 C CNN
+	1    4450 3500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4450 3500 4450 3800
+Wire Wire Line
+	4450 3800 5050 3800
+$Comp
+L Device:C C?
+U 1 1 5BA72676
+P 4700 3650
+F 0 "C?" H 4725 3750 50  0000 L CNN
+F 1 "100nF" H 4725 3550 50  0000 L CNN
+F 2 "" H 4738 3500 50  0001 C CNN
+F 3 "" H 4700 3650 50  0001 C CNN
+	1    4700 3650
+	0    1    1    0   
+$EndComp
+Connection ~ 4950 3650
+Wire Wire Line
+	4550 3650 4450 3650
+Connection ~ 4450 3650
+$Comp
+L Device:R R?
+U 1 1 5BA727F1
+P 7150 4050
+F 0 "R?" V 7230 4050 50  0000 C CNN
+F 1 "100" V 7150 4050 50  0000 C CNN
+F 2 "" V 7080 4050 50  0001 C CNN
+F 3 "" H 7150 4050 50  0001 C CNN
+	1    7150 4050
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BA728F0
+P 7150 3950
+F 0 "R?" V 7230 3950 50  0000 C CNN
+F 1 "100" V 7150 3950 50  0000 C CNN
+F 2 "" V 7080 3950 50  0001 C CNN
+F 3 "" H 7150 3950 50  0001 C CNN
+	1    7150 3950
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6050 3950 7000 3950
+Wire Wire Line
+	7300 3950 8050 3950
+Wire Wire Line
+	6150 4050 7000 4050
+Wire Wire Line
+	7300 4050 8050 4050
+Text Notes 8500 4050 0    60   ~ 0
+connect to GPS\nreceiver module
+$Comp
+L Device:R R?
+U 1 1 5BA72AEC
+P 4200 3950
+F 0 "R?" V 4280 3950 50  0000 C CNN
+F 1 "100" V 4200 3950 50  0000 C CNN
+F 2 "" V 4130 3950 50  0001 C CNN
+F 3 "" H 4200 3950 50  0001 C CNN
+	1    4200 3950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 5BA72B2C
+P 4200 4100
+F 0 "R?" V 4280 4100 50  0000 C CNN
+F 1 "100" V 4200 4100 50  0000 C CNN
+F 2 "" V 4130 4100 50  0001 C CNN
+F 3 "" H 4200 4100 50  0001 C CNN
+	1    4200 4100
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4350 3950 5050 3950
+Wire Wire Line
+	5050 4100 4350 4100
+$EndSCHEMATC
