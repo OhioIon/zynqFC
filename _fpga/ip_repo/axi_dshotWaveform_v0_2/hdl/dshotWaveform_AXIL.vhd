@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity dshot_AXIL is
+entity dshotWaveform_AXIL is
   generic (
     -- Users to add parameters here
 
@@ -12,7 +12,7 @@ entity dshot_AXIL is
     -- Width of S_AXI data bus
     C_S_AXI_DATA_WIDTH  : integer  := 32;
     -- Width of S_AXI address bus
-    C_S_AXI_ADDR_WIDTH  : integer  := 3
+    C_S_AXI_ADDR_WIDTH  : integer  := 4
   );
   port (
   
@@ -20,12 +20,18 @@ entity dshot_AXIL is
     
     reg0_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
     reg1_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
+    reg2_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
+    reg3_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
         
     reg0_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
     reg1_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+    reg2_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+    reg3_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
     
     reg0_WR  : out std_logic := '0';
     reg1_WR  : out std_logic := '0';
+    reg2_WR  : out std_logic := '0';
+    reg3_WR  : out std_logic := '0';
 
     -- User ports ends
     -- Do not modify the ports beyond this line
@@ -84,9 +90,9 @@ entity dshot_AXIL is
     S_AXI_RREADY  : in std_logic
     
   );
-end dshot_AXIL;
+end dshotWaveform_AXIL;
 
-architecture arch_imp of dshot_AXIL is
+architecture arch_imp of dshotWaveform_AXIL is
 
   -- AXI4LITE signals
   signal axi_awaddr   : std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0) := (others=>'0');
@@ -103,7 +109,7 @@ architecture arch_imp of dshot_AXIL is
   -- ADDR_LSB = 2 for 32 bits (n downto 2)
   -- ADDR_LSB = 3 for 64 bits (n downto 3)
   constant ADDR_LSB  : integer := (C_S_AXI_DATA_WIDTH/32)+ 1;
-  constant OPT_MEM_ADDR_BITS : integer := 0;
+  constant OPT_MEM_ADDR_BITS : integer := 1;
   
   ------------------------------------------------
   ---- Signals for user logic register space
@@ -207,16 +213,20 @@ begin
       
         reg0_out <= (others => '0');
         reg1_out <= (others => '0');
+        reg2_out <= (others => '0');
+        reg3_out <= (others => '0');
         
         reg0_WR  <= '0';
         reg1_WR  <= '0';
+        reg2_WR  <= '0';
+        reg3_WR  <= '0';
         
       else
         loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
         if (slv_reg_wren = '1') then
           case loc_addr is
           
-            when b"0" =>
+            when b"00" =>
               for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
                 if ( S_AXI_WSTRB(byte_index) = '1' ) then
                   -- Respective byte enables are asserted as per write strobes                   
@@ -226,7 +236,7 @@ begin
               end loop;
               reg0_WR  <= '1';
               
-            when b"1" =>
+            when b"01" =>
               for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
                 if ( S_AXI_WSTRB(byte_index) = '1' ) then
                   -- Respective byte enables are asserted as per write strobes                   
@@ -235,6 +245,26 @@ begin
                 end if;
               end loop;
               reg1_WR  <= '1';
+              
+            when b"10" =>
+                for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
+                  if ( S_AXI_WSTRB(byte_index) = '1' ) then
+                    -- Respective byte enables are asserted as per write strobes                   
+                    -- slave register 2
+                    reg2_out(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+                  end if;
+                end loop;
+                reg2_WR  <= '1';
+                
+              when b"11" =>
+                for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
+                  if ( S_AXI_WSTRB(byte_index) = '1' ) then
+                    -- Respective byte enables are asserted as per write strobes                   
+                    -- slave register 3
+                    reg3_out(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+                  end if;
+                end loop;
+                reg3_WR  <= '1';
                 
             when others =>
 
@@ -244,9 +274,13 @@ begin
         
           reg0_out <= reg0_in;
           reg1_out <= reg1_in;
+          reg2_out <= reg2_in;
+          reg3_out <= reg3_in;
           
           reg0_WR  <= '0';
           reg1_WR  <= '0';
+          reg2_WR  <= '0';
+          reg3_WR  <= '0';
         
         end if;
       end if;
@@ -329,14 +363,16 @@ begin
   
   slv_reg_rden <= axi_arready and S_AXI_ARVALID and (not axi_rvalid) ;
 
-  process (reg0_in, reg1_in, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
+  process (reg0_in, reg1_in, reg2_in, reg3_in, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
   variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
   begin
       -- Address decoding for reading registers
       loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
       case loc_addr is
-        when b"0" => reg_data_out <= reg0_in;
-        when b"1" => reg_data_out <= reg1_in;
+        when b"00" => reg_data_out <= reg0_in;
+        when b"01" => reg_data_out <= reg1_in;
+        when b"10" => reg_data_out <= reg2_in;
+        when b"11" => reg_data_out <= reg3_in;
         when others => reg_data_out <= (others => '0');
       end case;
   end process; 

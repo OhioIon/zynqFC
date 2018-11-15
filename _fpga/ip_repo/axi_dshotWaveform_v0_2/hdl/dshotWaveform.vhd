@@ -2,20 +2,18 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity dshot is
+entity dshotWaveform is
   generic (
     -- Parameters of Axi Slave Bus Interface AXIL
     C_AXIL_ACLK_FREQ_HZ  : integer  := 100000000;
     C_AXIL_DATA_WIDTH    : integer  := 32;
-    C_AXIL_ADDR_WIDTH    : integer  := 3 -- 2^3 = 8 Byte address space = 2 registers
+    C_AXIL_ADDR_WIDTH    : integer  := 4 -- 2^4 = 16 Byte address space = 4 registers
   );
   port (
     -- DShot Bit-Waveform in AXI4-Stream structure
-    axis_tvalid    : in std_logic := '0'; -- Waveform data is valid
-    axis_tlast     : in std_logic := '0'; -- Last clock cycle of waveform
-    axis_tdata     : in std_logic_vector(7 downto 0) := (others=>'0'); -- High bit and low bit waveform signals (other bits unused)
-    -- DShot protocol output signal
-    dshot_out      : out std_logic := '0';
+    axis_tvalid    : out std_logic := '0'; -- Waveform data is valid
+    axis_tlast     : out std_logic := '0'; -- Last clock cycle of waveform
+    axis_tdata     : out std_logic_vector(7 downto 0) := (others=>'0'); -- High bit and low bit waveform signals (other bits unused)
     -- Ports of Axi Slave Bus Interface AXIL
     axil_aclk      : in std_logic;
     axil_aresetn   : in std_logic;
@@ -37,15 +35,15 @@ entity dshot is
     axil_rvalid    : out std_logic;
     axil_rready    : in  std_logic
   );
-end dshot;
+end dshotWaveform;
 
-architecture arch_imp of dshot is
+architecture arch_imp of dshotWaveform is
 
   -- sub-component declaration
-  component dshot_AXIL is
+  component dshotWaveform_AXIL is
     generic (
     C_S_AXI_DATA_WIDTH  : integer  := 32;
-    C_S_AXI_ADDR_WIDTH  : integer  := 3
+    C_S_AXI_ADDR_WIDTH  : integer  := 4
     );
     port (
     -- AXIL
@@ -69,45 +67,42 @@ architecture arch_imp of dshot is
     S_AXI_RVALID   : out std_logic;
     S_AXI_RREADY   : in  std_logic;
     -- RegIf
-    reg0_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-    reg1_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+    reg0_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
+    reg1_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
+    reg2_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
+    reg3_out : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := (others=>'0');
     reg0_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
     reg1_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-    reg0_WR  : out std_logic;
-    reg1_WR  : out std_logic
+    reg2_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+    reg3_in  : in  std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+    reg0_WR  : out std_logic := '0';
+    reg1_WR  : out std_logic := '0';
+    reg2_WR  : out std_logic := '0';
+    reg3_WR  : out std_logic := '0'
     );
-  end component dshot_AXIL;
-  
-  -- type declaration
-  type stateMachine is (
-    Idle,
-    Delay,
-    Data
-  );
+  end component dshotWaveform_AXIL;
   
   -- Memory map
   signal reg0              : std_logic_vector(31 downto 0) := (others=>'0');
   signal reg1              : std_logic_vector(31 downto 0) := (others=>'0');
+  signal reg2              : std_logic_vector(31 downto 0) := (others=>'0');
   
   -- From CPU
-  signal dshotData_u16     : std_logic_vector(15 downto 0) := (others=>'0');
   signal flgStart_l        : std_logic := '0';
+  signal cntBitTot_u16     : std_logic_vector(15 downto 0) := (others=>'0');
+  signal cntT0H_u16        : std_logic_vector(15 downto 0) := (others=>'0');
+  signal cntT1H_u16        : std_logic_vector(15 downto 0) := (others=>'0');
   
-  -- To CPU
-  signal flgBusy_l         : std_logic := '0';
-  
-  -- State Machine
-  signal stMac             : stateMachine         := Idle;
-  signal idx_u4            : unsigned(3 downto 0) := x"0";   -- Bit index for current bit 
-  
-  -- DShot output signal FFs
-  signal dshot_to_ff       : std_logic := '0';
-  signal dshot_ff          : std_logic := '0';
+  -- DShot Bit Wavform Geneartion
+  signal bitCount_u16    : unsigned(15 downto 0) := (others=>'0'); -- Bit-Time Counter
+  signal i_cntBitTot_u16 : unsigned(15 downto 0) := (others=>'0'); -- Tick Count for Total Bit
+  signal i_cntT0H_u16    : unsigned(15 downto 0) := (others=>'0'); -- Tick Count for Zero Bit Value
+  signal i_cntT1H_u16    : unsigned(15 downto 0) := (others=>'0'); -- Tick Count for One Bit Value
 
 begin
 
 -- Instantiation of Axi Bus Interface AXIL
-dshot_AXIL_inst : dshot_AXIL
+dshotWaveform_AXIL_inst : dshotWaveform_AXIL
 generic map (
   C_S_AXI_DATA_WIDTH  => C_AXIL_DATA_WIDTH,
   C_S_AXI_ADDR_WIDTH  => C_AXIL_ADDR_WIDTH
@@ -139,99 +134,83 @@ port map (
   -- RW
   reg0_out          => reg0, 
   reg0_in           => reg0,
-  reg0_WR           => flgStart_l, -- Writing to reg0 starts DShot transmission
+  reg0_WR           => open,
 
-  -- RO
-  reg1_out          => open, 
+  -- RW
+  reg1_out          => reg1, 
   reg1_in           => reg1,
-  reg1_WR           => open
+  reg1_WR           => open,
+  
+  -- RO
+  reg2_out          => open, 
+  reg2_in           => reg2,
+  reg2_WR           => open,
+  
+  -- Unused
+  reg3_out          => open, 
+  reg3_in           => (others=>'0'),
+  reg3_WR           => open
 
 );
   
 -- From CPU
-dshotData_u16 <= reg0(15 downto  0);
+flgStart_l    <= reg0(31);
+cntBitTot_u16 <= reg0(15 downto  0);
+cntT0H_u16    <= reg1(15 downto  0);
+cntT1H_u16    <= reg1(31 downto 16);
 
 -- To CPU
-reg1(0)           <= flgBusy_l;
-reg1(31 downto 1) <= (others => '0');
+reg2(31 downto 0) <= std_logic_vector(to_unsigned(C_AXIL_ACLK_FREQ_HZ,32)); -- Allow driver software to automatically obtain clock frequency
+  
+-- Convert inputs to unsigned
+i_cntBitTot_u16 <= Unsigned(cntBitTot_u16);
+i_cntT0H_u16    <= Unsigned(cntT0H_u16);
+i_cntT1H_u16    <= Unsigned(cntT1H_u16);
 
--- State Machine
+-- Unused TDATA bits
+axis_tdata(7 downto 2) <= (others=>'0');
+
+
+-- Bit Waveform Generation
 process( axil_aclk ) 
 begin
-  if rising_edge(axil_aclk) then 
-    if axil_aresetn = '0' then
-      -- Reset Signals
-      stMac        <= Idle;
-      idx_u4       <= x"0";
-      -- Reset Outputs
-      dshot_to_ff  <= '0';
+  if rising_edge(axil_aclk) then
+    if flgStart_l = '0' then
+      bitCount_u16  <= x"0000";
+      axis_tvalid   <= '0';
+      axis_tlast    <= '0';
+      axis_tdata(0) <= '0';
+      axis_tdata(1) <= '0';
     else
     
-      case stMac is
-              
-        when Idle =>
-        
-          if( flgStart_l = '1' ) and (axis_tvalid = '1') then
-            -- Start State Machine
-            stMac        <= Delay;
-            dshot_to_ff  <= '0';
-          end if;
-          
-        when Delay =>
-        
-          -- Wait for TLAST
-          if( axis_tlast = '1') then
-            stMac       <= Data;
-            idx_u4      <= x"F";
-            dshot_to_ff <= '0';
-          end if;
-          
-        when Data =>
-        
-          -- Forward bit waveform for current data bit
-          if (dshotData_u16(to_integer(idx_u4)) = '1') then
-            dshot_to_ff <= axis_tdata(1);
-          else 
-            dshot_to_ff <= axis_tdata(0);
-          end if;
-        
-          -- Use next bit on TLAST
-          if( axis_tlast = '1' ) then
-            -- Bit time has passed
-            if (idx_u4 /= x"0") then
-              -- There are still data bits
-              idx_u4 <= idx_u4 - 1;
-            else
-              -- All data bits processed
-              stMac <= Idle;
-            end if;  
-          end if;  
-
-      end case;
-
+      -- Data is valid
+      axis_tvalid <= '1';
+       
+      -- Count Bit Time
+      if (bitCount_u16 < i_cntBitTot_u16) then
+        bitCount_u16 <= bitCount_u16 + 1;
+        axis_tlast <= '0';
+      else
+        axis_tlast <= '1';
+        bitCount_u16 <= x"0000";
+      end if;
+      
+      -- Bit 0 Waveform
+      if (bitCount_u16 < i_cntT0H_u16) then
+        axis_tdata(0) <= '1';
+      else
+        axis_tdata(0) <= '0';
+      end if;
+      
+      -- Bit 1 Waveform
+      if (bitCount_u16 < i_cntT1H_u16) then
+        axis_tdata(1) <= '1';
+      else
+        axis_tdata(1) <= '0';
+      end if;
+      
     end if;
   end if;
 end process;
-
-
--- Busy is singaled in case not idle
-flgBusy_l <= '0' when (stMac = Idle) else '1';
-
-  
--- Use one flip-flop to provide ease-of-routing towards output buffer/pad
--- Use a second Flip-Flop that can be placed directly into the output buffer/pad for reproducible output timings
-process(axil_aclk)
-begin
-  if rising_edge(axil_aclk) then 
-    if axil_aresetn = '0' then
-      dshot_ff  <= '0';
-      dshot_out <= '0';
-    else
-      dshot_ff  <= dshot_to_ff; -- 1st FF
-      dshot_out <= dshot_ff;    -- 2nd FF
-    end if;
-  end if;
-end process;
-
-
+ 
 end arch_imp;

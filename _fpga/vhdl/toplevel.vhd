@@ -34,7 +34,10 @@ entity toplevel is
     FIXED_IO_ps_clk : inout STD_LOGIC;
     FIXED_IO_ps_porb : inout STD_LOGIC;
     FIXED_IO_ps_srstb : inout STD_LOGIC;
-    dshot_0 : out STD_LOGIC
+    dshot_0 : out STD_LOGIC;
+    dshot_1 : out STD_LOGIC;
+    dshot_2 : out STD_LOGIC;
+    dshot_3 : out STD_LOGIC
   );
 end toplevel;
 
@@ -62,7 +65,10 @@ architecture STRUCTURE of toplevel is
     FIXED_IO_ps_srstb : inout STD_LOGIC;
     FIXED_IO_ps_clk : inout STD_LOGIC;
     FIXED_IO_ps_porb : inout STD_LOGIC;
-    dshot_0 : out STD_LOGIC
+    dshot_0 : out STD_LOGIC;
+    dshot_1 : out STD_LOGIC;
+    dshot_2 : out STD_LOGIC;
+    dshot_3 : out STD_LOGIC
   );
   end component main;
 begin
@@ -89,6 +95,9 @@ main_i: component main
       FIXED_IO_ps_clk => FIXED_IO_ps_clk,
       FIXED_IO_ps_porb => FIXED_IO_ps_porb,
       FIXED_IO_ps_srstb => FIXED_IO_ps_srstb,
-      dshot_0 => dshot_0
+      dshot_0 => dshot_0,
+      dshot_1 => dshot_1,
+      dshot_2 => dshot_2,
+      dshot_3 => dshot_3
     );
 end STRUCTURE;
