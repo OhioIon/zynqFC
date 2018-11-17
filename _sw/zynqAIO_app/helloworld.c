@@ -49,10 +49,34 @@
 #include "platform.h"
 #include "xil_printf.h"
 
+#include "dshot.h"
+#include "dshotWaveform.h"
+
+dshot_ts dshot_s;
+dshotWaveform_ts dshotWaveform_s;
 
 int main()
 {
+    // Init PS already done by FSBL
+    //ps7_init();
+
+    // Init PS peripherals
     init_platform();
+
+    // Init PL (check if programmed, clock enabled, reset released)
+    // TODO
+
+    // Init PL peripherals
+    dshotWaveform_s.prm_s.addrBas_pv     = (void*)XPAR_DSHOTWAVEFORM_0_0;
+    dshotWaveform_s.prm_s.speed_kbps_u16 = 600; // DShot600
+    dshotWaveform_init( &dshotWaveform_s );
+
+    dshot_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_0_0;
+    dshot_init( &dshot_s );
+
+    dshot_s.inp_s.rawData_u16  = 0U;
+    dshot_s.inp_s.flgReqTel_u8 = 0U;
+    dshot( &dshot_s );
 
     print("Hello World\n\r");
 
