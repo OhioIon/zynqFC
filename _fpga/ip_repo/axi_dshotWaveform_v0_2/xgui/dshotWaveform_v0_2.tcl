@@ -34,24 +34,6 @@ proc validate_PARAM_VALUE.C_AXIL_ADDR_WIDTH { PARAM_VALUE.C_AXIL_ADDR_WIDTH } {
 	return true
 }
 
-proc update_PARAM_VALUE.C_AXIL_BASEADDR { PARAM_VALUE.C_AXIL_BASEADDR } {
-	# Procedure called to update C_AXIL_BASEADDR when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.C_AXIL_BASEADDR { PARAM_VALUE.C_AXIL_BASEADDR } {
-	# Procedure called to validate C_AXIL_BASEADDR
-	return true
-}
-
-proc update_PARAM_VALUE.C_AXIL_HIGHADDR { PARAM_VALUE.C_AXIL_HIGHADDR } {
-	# Procedure called to update C_AXIL_HIGHADDR when any of the dependent parameters in the arguments change
-}
-
-proc validate_PARAM_VALUE.C_AXIL_HIGHADDR { PARAM_VALUE.C_AXIL_HIGHADDR } {
-	# Procedure called to validate C_AXIL_HIGHADDR
-	return true
-}
-
 
 proc update_MODELPARAM_VALUE.C_AXIL_DATA_WIDTH { MODELPARAM_VALUE.C_AXIL_DATA_WIDTH PARAM_VALUE.C_AXIL_DATA_WIDTH } {
 	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
