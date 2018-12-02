@@ -37,7 +37,7 @@ uint8_t dshotWaveform_init( dshotWaveform_ts *ps )
   if( ps != NULL )
   {
     // Parameter Check
-    if( (ps->prm_s.addrBas_pv != NULL) && (ps->prm_s.speed_kbps_u16 >= 150) && (ps->prm_s.speed_kbps_u16 <= 1200) )
+    if( (ps->prm_s.addrBas_pv != NULL) && (ps->prm_s.speed_kbps_u16 >= 150) && (ps->prm_s.speed_kbps_u16 <= 2400) )
     {
       // Read AXI4-lite clock frequency from reg2
       uint32_t frqClk_Hz_u32 = RdReg32( ps->prm_s.addrBas_pv + REG2 );

@@ -19,7 +19,7 @@
 typedef struct dshotWaveform_prm_s
 {
   void *addrBas_pv;        // Physical base address of registers
-  uint16_t speed_kbps_u16; // DShot protocol speed 150 till 1200 (e.g. 600 = DShot600 = 600 kbps)
+  uint16_t speed_kbps_u16; // DShot protocol speed 150 till 2400 (e.g. 600 = DShot600 = 600 kbps)
 }dshotWaveform_prm_ts;
 
 typedef struct dshotWaveform_s
