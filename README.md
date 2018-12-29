@@ -12,6 +12,7 @@ Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p sid
 - Xilinx Zynq SoC Processor (Dual-Core ARM Cortex-A9 MPCore up to 866 MHz + Artix 7 FPGA fabric)
 - MPU-6000 as Gyro
 - BMX160 as IMU/Mag
+- BMP280 barometer
 - 16 MiByte flash and microSD slot
 - 256 MiByte DDR3 RAM
 - I²C EEPROM
