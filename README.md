@@ -1,4 +1,4 @@
-# zynqAIO
+# zynqFC
 Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p side-by-side digital video transmission.
 
 
