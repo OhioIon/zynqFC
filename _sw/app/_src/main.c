@@ -36,7 +36,7 @@ int main( void )
 
   // Boot up message
   outbyte(0); // clear-screen
-  xil_printf( "///////// zynqAIO /////////\n" );
+  xil_printf( "///////// zynqFC /////////\n" );
 
   // Wait 100 ms power-on delay
   usleep( 100000 );
