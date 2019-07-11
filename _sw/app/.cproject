@@ -25,12 +25,16 @@
 							<tool id="xilinx.gnu.armv7.c.toolchain.compiler.debug.1516208691" name="ARM v7 gcc compiler" superClass="xilinx.gnu.armv7.c.toolchain.compiler.debug">
 								<option defaultValue="gnu.c.optimization.level.none" id="xilinx.gnu.compiler.option.optimization.level.129902757" name="Optimization Level" superClass="xilinx.gnu.compiler.option.optimization.level" valueType="enumerated"/>
 								<option id="xilinx.gnu.compiler.option.debugging.level.589152738" name="Debug Level" superClass="xilinx.gnu.compiler.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1329826260" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes" valueType="includePath"/>
+								<option id="xilinx.gnu.compiler.inferred.swplatform.includes.1329826260" name="Software Platform Include Path" superClass="xilinx.gnu.compiler.inferred.swplatform.includes"/>
 								<option id="xilinx.gnu.compiler.misc.other.1317020151" name="Other flags" superClass="xilinx.gnu.compiler.misc.other" value="-c -fmessage-length=0 -MT&quot;$@&quot; -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard" valueType="string"/>
 								<option id="xilinx.gnu.compiler.dircategory.includes.642349165" name="Include Paths" superClass="xilinx.gnu.compiler.dircategory.includes" valueType="includePath">
 									<listOptionValue builtIn="false" value="../../standalone_bsp_0/ps7_cortexa9_0/include"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}\..\..\_fpga\ip_repo\axi_dshot_v0_2\drivers&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}\..\..\_fpga\ip_repo\axi_dshotWaveform_v0_2\drivers&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../_lib\Bas&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../_lib\DevInp&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../_lib\DevOutp&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../_lib\Veh&quot;"/>
 								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.1218403246" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>

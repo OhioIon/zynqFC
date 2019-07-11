@@ -15,6 +15,7 @@
   - it is automatically created from Vivado during build and includes the bitfile as well (it's basically a .zip folder)
   - a SDK workspace is created, SDK is launched, and a "Hardware Platform Specification" project is created based on this file
   - In case the workspace/project already exist, they are merly updated
+  - Continue with the HOWTO.md in the _sw folder...
 
 /// Save changes in vivado project for git commit/push ///
 - open the Vivado project

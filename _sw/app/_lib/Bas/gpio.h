@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-int gpio_init( void );
+uint8_t gpio_init( void );
 
 uint8_t gpio_get_BTN4( void );
 uint8_t gpio_get_BTN5( void );

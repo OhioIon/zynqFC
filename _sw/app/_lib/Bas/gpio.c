@@ -1,6 +1,8 @@
 // Includes
 #include "gpio.h"
 
+#include <xgpiops.h>
+
 // Global Variables
 static XGpioPs XGpioPs_s;
 
@@ -40,14 +42,14 @@ uint8_t gpio_init( void )
   return 0;
 }
 
-u8 gpio_get_BTN4( void )
+uint8_t gpio_get_BTN4( void )
 {
-  return (u8)XGpioPs_ReadPin( &XGpioPs_s, 50 );
+  return (uint8_t)XGpioPs_ReadPin( &XGpioPs_s, 50 );
 }
 
-u8 gpio_get_BTN5( void )
+uint8_t gpio_get_BTN5( void )
 {
-  return (u8)XGpioPs_ReadPin( &XGpioPs_s, 51 );
+  return (uint8_t)XGpioPs_ReadPin( &XGpioPs_s, 51 );
 }
 
 void gpio_set_LD4( uint8_t on )
