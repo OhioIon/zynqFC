@@ -38,6 +38,9 @@ int main( void )
   outbyte(0); // clear-screen
   xil_printf( "///////// zynqAIO /////////\n" );
 
+  // Wait 100 ms power-on delay
+  usleep( 100000 );
+
   // Initialization
   xil_printf( "Init ... " );
   if( retVal_u8 == 0) retVal_u8 += Bas_init();

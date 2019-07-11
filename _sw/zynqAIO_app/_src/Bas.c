@@ -19,9 +19,6 @@ uint8_t Bas_init( void )
 {
   uint8_t retVal_u8 = 0;
 
-  // Wait 100 ms power-on delay
-  usleep( 100000 );
-
   // Initialize HAL
   if( retVal_u8 == 0 ) retVal_u8 += gpio_init();
   if( retVal_u8 == 0 ) retVal_u8 += spi_init();
