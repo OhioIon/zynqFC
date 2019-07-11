@@ -13,7 +13,6 @@
 #include <stdint.h>
 #include <sleep.h>
 
-#include "fabric.h"
 #include "gpio.h"
 #include "spi.h"
 
@@ -21,14 +20,7 @@
 
 /******************** Types *********************/
 
-typedef struct Bas_s
-{
-
-}Bas_ts;
-
 /****************** Public Data *****************/
-
-BAS_SCOPE Bas_ts Bas_s;
 
 /******************* Interface ******************/
 
