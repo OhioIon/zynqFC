@@ -41,14 +41,12 @@ typedef struct dshotWaveform_prm_s
 {
   void     *addrBas_pv;    ///< Physical base address of IP-core registers
   uint16_t speed_kbps_u16; ///< Desired DShot protocol speed (150 - 2400). Example: 600 = DShot600 = 600 kbps
-
 }dshotWaveform_prm_ts;
 
 /// dshotWaveform driver instance
 typedef struct dshotWaveform_s
 {
   dshotWaveform_prm_ts  prm_s; ///< parameters
-
 }dshotWaveform_ts;
 
 /****************** Public Data *****************/
