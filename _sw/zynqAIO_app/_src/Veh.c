@@ -4,7 +4,9 @@
 
 #include "Veh.h"
 #include "DevInp.h"
-#include "xil_printf.h"
+
+#include <xil_printf.h>
+#include <math.h>
 
 /******************* Defines ********************/
 
@@ -49,6 +51,18 @@ uint8_t Veh_init( void )
   Veh_s.channelThr_s.prm_s.flgPosOnly_u8      = 1;
   Veh_s.channelThr_s.prm_s.flgReverse_u8      = 0;
   if( retVal_u8 == 0 ) retVal_u8 += channel_init( &Veh_s.channelThr_s );
+
+  // Configure rotation matrix instance
+  Veh_s.rotMatrix_s.prm_s.matrix_f[0][0] = 1.0;
+  Veh_s.rotMatrix_s.prm_s.matrix_f[0][1] = 0.0;
+  Veh_s.rotMatrix_s.prm_s.matrix_f[0][2] = 0.0;
+  Veh_s.rotMatrix_s.prm_s.matrix_f[1][0] = 0.0;
+  Veh_s.rotMatrix_s.prm_s.matrix_f[1][1] = +cos(-M_PI_4);
+  Veh_s.rotMatrix_s.prm_s.matrix_f[1][2] = -sin(-M_PI_4);
+  Veh_s.rotMatrix_s.prm_s.matrix_f[2][0] = 0.0;
+  Veh_s.rotMatrix_s.prm_s.matrix_f[2][1] = +sin(-M_PI_4);
+  Veh_s.rotMatrix_s.prm_s.matrix_f[2][2] = +cos(-M_PI_4);
+  rotMatrix_init( &Veh_s.rotMatrix_s );
 
   // Configure ARM instance
   Veh_s.arm_s.prm_s.yawThres_perml_s16 = -900;
@@ -112,6 +126,12 @@ void Veh( void )
   // TODO: improve channel by using mid calibration point
   // TODO: improve channel so output of 100 % on all channels is possible (remove some us from parameter)
 
+  // Apply rotation matrix to IMU measurement signals (sensor not aligned to frame)
+  Veh_s.rotMatrix_s.inp_s.yaw_s16 = DevInp_s.outp_s.yaw_degps_s16;
+  Veh_s.rotMatrix_s.inp_s.pit_s16 = DevInp_s.outp_s.pit_degps_s16;
+  Veh_s.rotMatrix_s.inp_s.rol_s16 = DevInp_s.outp_s.rol_degps_s16;
+  rotMatrix( &Veh_s.rotMatrix_s );
+
   // Check for arm condition
   Veh_s.arm_s.inp_s.flgCon_u8     = DevInp_s.outp_s.flgCon_u8;
   Veh_s.arm_s.inp_s.yaw_perml_s16 = Veh_s.channelYaw_s.outp_s.out_perml_s16;
@@ -148,9 +168,9 @@ void Veh( void )
   Veh_s.pidYaw_s.inp_s.sp_degps_s16  = Veh_s.rateYaw_s.outp_s.rate_degps_s16;
   Veh_s.pidPit_s.inp_s.sp_degps_s16  = Veh_s.ratePit_s.outp_s.rate_degps_s16;
   Veh_s.pidRol_s.inp_s.sp_degps_s16  = Veh_s.rateRol_s.outp_s.rate_degps_s16;
-  Veh_s.pidYaw_s.inp_s.act_degps_s16 = DevInp_s.outp_s.yaw_degps_s16;
-  Veh_s.pidPit_s.inp_s.act_degps_s16 = DevInp_s.outp_s.pit_degps_s16;
-  Veh_s.pidRol_s.inp_s.act_degps_s16 = DevInp_s.outp_s.rol_degps_s16;
+  Veh_s.pidYaw_s.inp_s.act_degps_s16 = Veh_s.rotMatrix_s.outp_s.yaw_s16;
+  Veh_s.pidPit_s.inp_s.act_degps_s16 = Veh_s.rotMatrix_s.outp_s.pit_s16;
+  Veh_s.pidRol_s.inp_s.act_degps_s16 = Veh_s.rotMatrix_s.outp_s.rol_s16;
   Veh_s.pidYaw_s.inp_s.flgClrIntg_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
   Veh_s.pidPit_s.inp_s.flgClrIntg_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
   Veh_s.pidRol_s.inp_s.flgClrIntg_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
@@ -180,10 +200,10 @@ void Veh( void )
   rl_s16 += Veh_s.pidRol_s.outp_s.out_degps_s16 / 4;
   rr_s16 -= Veh_s.pidRol_s.outp_s.out_degps_s16 / 4;
   // Throttle
-  fl_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16;
-  fr_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16;
-  rl_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16;
-  rr_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16;
+  fl_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
+  fr_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
+  rl_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
+  rr_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
   // Min limit
   if( fl_s16 < 0 ) fl_s16 = 0;
   if( fr_s16 < 0 ) fr_s16 = 0;

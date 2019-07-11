@@ -12,11 +12,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <channel.h>
-#include <arm.h>
-#include <expo.h>
-#include <rateDes.h>
-#include <pid.h>
+#include "channel.h"
+#include "arm.h"
+#include "expo.h"
+#include "rateDes.h"
+#include "pid.h"
+#include "rotMatrix.h"
 
 /******************* Defines ********************/
 
@@ -44,6 +45,9 @@ typedef struct Veh_s
   channel_ts channelPit_s;
   channel_ts channelRol_s;
   channel_ts channelThr_s;
+
+  // Rotation matrix instance
+  rotMatrix_ts rotMatrix_s;
 
   // Arm instance
   arm_ts arm_s;
