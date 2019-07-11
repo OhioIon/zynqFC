@@ -5,7 +5,7 @@
 #include "spi.h"
 
 #include <xparameters.h>
-#include <xiic.h> // TODO remove
+#include <xiic.h>
 #include <xspips.h>
 
 /******************* Defines ********************/
@@ -48,7 +48,7 @@ uint8_t spi_init( void )
   /////////////////// MPU-6000 ///////////////////
 
   // TODO: Replace I2C interface with SPI interface
-  retVal = XIic_Initialize( &mpu6000Iic_s, XPAR_AXI_IIC_1_DEVICE_ID );
+  retVal = XIic_Initialize( &mpu6000Iic_s, XPAR_AXI_IIC_0_DEVICE_ID );
   if( retVal != XST_SUCCESS ) return 1;
   retVal = XIic_SetAddress( &mpu6000Iic_s, XII_ADDR_TO_SEND_TYPE, 0x68 );
   if( retVal != XST_SUCCESS ) return 1;
