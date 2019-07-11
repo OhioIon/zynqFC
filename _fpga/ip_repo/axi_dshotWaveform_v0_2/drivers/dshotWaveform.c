@@ -1,8 +1,9 @@
 #define DSHOTWAVEFORM_C
 
-/** \brief "dshotWaveform" device driver
+/** \file  dshotWaveform.c
+ *  \brief dshotWaveform device driver
  *
- *  OhioIon 2019
+ *  \author OhioIon 2019
  *
  */
 
@@ -35,7 +36,7 @@ static inline volatile uint32_t RdReg32(volatile uint32_t *p){return *p;}      /
  * 0-bit and 1-bit pattern of the DShot protocol. This is used by the
  * DShot peripheral.
  *
- * \param  ps: Pointer to driver instance struct
+ * \param  ps: Driver instance pointer
  * \return 0 ok, 1 error
  *
  */

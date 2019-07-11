@@ -1,7 +1,8 @@
 #ifndef DSHOTWAVEFORM_H
 #define DSHOTWAVEFORM_H
 
-/** \brief "dshotWaveform" device driver
+/** \file  dshotWaveform.h
+ *  \brief dshotWaveform device driver
  *
  *  The dshotWaveform IP-core is programmed in VHDL and synthesized into the FPGA fabric.
  *  It is connected to the CPU via AXI4-Lite bus.
@@ -15,7 +16,7 @@
  *  of the DShot communication while the "dshot" IP-core controls the data packet
  *  transmission and contents.
  *
- *  OhioIon 2019
+ *  \author OhioIon 2019
  *
  */
 
@@ -35,17 +36,18 @@
 
 /******************** Types *********************/
 
+/// dshotWaveform parameters
 typedef struct dshotWaveform_prm_s
 {
   void     *addrBas_pv;    ///< Physical base address of IP-core registers
-  uint16_t speed_kbps_u16; ///< Desired DShot protocol speed (150 - 2400)
-  	                       ///  Example: 600 = DShot600 = 600 kbps
+  uint16_t speed_kbps_u16; ///< Desired DShot protocol speed (150 - 2400). Example: 600 = DShot600 = 600 kbps
 
 }dshotWaveform_prm_ts;
 
+/// dshotWaveform driver instance
 typedef struct dshotWaveform_s
 {
-  dshotWaveform_prm_ts  prm_s;
+  dshotWaveform_prm_ts  prm_s; ///< parameters
 
 }dshotWaveform_ts;
 
