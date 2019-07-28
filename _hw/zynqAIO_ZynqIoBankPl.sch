@@ -1268,22 +1268,22 @@ Wire Wire Line
 Wire Wire Line
 	8350 6300 8250 6300
 Connection ~ 8250 6300
-Text GLabel 12050 4800 0    60   Input ~ 0
+Text GLabel 12050 5700 0    60   Input ~ 0
 DSHOT_M0
-Text GLabel 12050 4900 0    60   Input ~ 0
+Text GLabel 12050 5900 0    60   Input ~ 0
 DSHOT_M1
-Text GLabel 12050 5000 0    60   Input ~ 0
+Text GLabel 12050 6300 0    60   Input ~ 0
 DSHOT_M2
-Text GLabel 12050 5100 0    60   Input ~ 0
+Text GLabel 12050 5500 0    60   Input ~ 0
 DSHOT_M3
 Wire Wire Line
-	12050 4800 12700 4800
+	12050 5700 12700 5700
 Wire Wire Line
-	12700 4900 12050 4900
+	12700 5900 12050 5900
 Wire Wire Line
-	12050 5000 12700 5000
+	12050 6300 12700 6300
 Wire Wire Line
-	12700 5100 12050 5100
+	12700 5500 12050 5500
 Text GLabel 12400 2800 0    60   Input ~ 0
 BARO_SPI_MOSI
 Wire Wire Line
@@ -1302,7 +1302,7 @@ Wire Wire Line
 	12400 3100 12700 3100
 Text Notes 11100 3050 0    60   ~ 0
 to\nbarometer
-Text Notes 11200 5100 0    60   ~ 0
+Text Notes 11200 6000 0    60   ~ 0
 to\nBLDC\nESCs
 Wire Wire Line
 	4650 2950 4650 3050
