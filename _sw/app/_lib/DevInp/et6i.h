@@ -57,6 +57,7 @@ typedef struct et6i_prv_s
 
 typedef struct et6i_outp_s
 {
+  uint8_t flgBind_u8; // Binding is in progress
   uint8_t flgCon_u8;  // Connected / valid channel data
   uint8_t flgLost_u8; // Lost signal / timeout error
 

@@ -90,97 +90,100 @@ void et6i( void )
     // Only process messages with correct format
     if( retVal_u8 == 0)
     {
-       // On first packet record address data and band info
-       if( et6i_s.prv_s.bandInfo_u8 == 0 )
-       {
-         // Store address
-         et6i_s.prv_s.addr_au8[0] = dat_au8[0];
-         et6i_s.prv_s.addr_au8[1] = dat_au8[1];
-         et6i_s.prv_s.addr_au8[2] = dat_au8[2];
+      // Indicate binding has started
+      et6i_s.outp_s.flgBind_u8 = 1;
 
-         // Store band information
-         et6i_s.prv_s.bandInfo_u8 = dat_au8[3];
+      // On first packet record address data and band info
+      if( et6i_s.prv_s.bandInfo_u8 == 0 )
+      {
+        // Store address
+        et6i_s.prv_s.addr_au8[0] = dat_au8[0];
+        et6i_s.prv_s.addr_au8[1] = dat_au8[1];
+        et6i_s.prv_s.addr_au8[2] = dat_au8[2];
 
-         // Debug info
-         xil_printf("ok\n");
-         xil_printf("Bind ... ");
-       }
-       else // On all other binding packets compare for identical values
-       {
-         if( (et6i_s.prv_s.addr_au8[0] != dat_au8[0]) ||
-             (et6i_s.prv_s.addr_au8[1] != dat_au8[1]) ||
-             (et6i_s.prv_s.addr_au8[2] != dat_au8[2]) ||
-             (et6i_s.prv_s.bandInfo_u8 != dat_au8[3]) )
-         {
-           et6i_s.prv_s.st_e = et6i_stMacBindingAbort_E;
+        // Store band information
+        et6i_s.prv_s.bandInfo_u8 = dat_au8[3];
 
-           // Debug info
-           xil_printf("Abort... wrong repetition\n");
-           xil_printf("Addr %02X:%02X:%02X != %02X:%02X:%02X\n",
-               et6i_s.prv_s.addr_au8[0],
-               et6i_s.prv_s.addr_au8[1],
-               et6i_s.prv_s.addr_au8[2],
-               dat_au8[0],
-               dat_au8[1],
-               dat_au8[2] );
-           xil_printf("Channel %02X != %02X\n", et6i_s.prv_s.bandInfo_u8, dat_au8[3] );
-         }
-         else
-         {
-           et6i_s.prv_s.cnt_u32++;
-         }
+        // Debug info
+        xil_printf("ok\n");
+        xil_printf("Bind ... ");
+      }
+      else // On all other binding packets compare for identical values
+      {
+      if( (et6i_s.prv_s.addr_au8[0] != dat_au8[0]) ||
+          (et6i_s.prv_s.addr_au8[1] != dat_au8[1]) ||
+          (et6i_s.prv_s.addr_au8[2] != dat_au8[2]) ||
+          (et6i_s.prv_s.bandInfo_u8 != dat_au8[3]) )
+      {
+        et6i_s.prv_s.st_e = et6i_stMacBindingAbort_E;
 
-         // If we received 200 consecutive frames without any other
-         // transmitter sending binding information we consider binding success
-         if( et6i_s.prv_s.cnt_u32 >= 200 )
-         {
-           xil_printf( "ok\n" );
+        // Debug info
+        xil_printf("Abort... wrong repetition\n");
+        xil_printf("Addr %02X:%02X:%02X != %02X:%02X:%02X\n",
+           et6i_s.prv_s.addr_au8[0],
+           et6i_s.prv_s.addr_au8[1],
+           et6i_s.prv_s.addr_au8[2],
+           dat_au8[0],
+           dat_au8[1],
+           dat_au8[2] );
+        xil_printf("Channel %02X != %02X\n", et6i_s.prv_s.bandInfo_u8, dat_au8[3] );
+      }
+      else
+      {
+        et6i_s.prv_s.cnt_u32++;
+      }
 
-           // Transmitter will transmit on two bands.
-           // Each band is 7 channels wide.
-           // Data will be on center channel.
-           // The two data channels are 37 channels apart.
-           // The band information byte indicates the start channels.
-           // The transmitter will increase band info value by one on each start.
-           // This shifts band 5 channels up.
-           // In case one of the bands reaches 80 some special handling is done (see below).
+      // If we received 200 consecutive frames without any other
+      // transmitter sending binding information we consider binding success
+      if( et6i_s.prv_s.cnt_u32 >= 200 )
+      {
+        xil_printf( "ok\n" );
 
-           // Determine band 1 and 2 start channel
-           uint16_t band1_u16 = 7;
-           uint16_t band2_u16 = band1_u16 + 37;
-           for( uint16_t idx_u16 = 10; idx_u16 < 84; idx_u16++ )
-           {
-             // Stop if index is equal to band info byte
-             if( et6i_s.prv_s.bandInfo_u8 == idx_u16 )
-             {
-               break;
-             }
+        // Transmitter will transmit on two bands.
+        // Each band is 7 channels wide.
+        // Data will be on center channel.
+        // The two data channels are 37 channels apart.
+        // The band information byte indicates the start channels.
+        // The transmitter will increase band info value by one on each start.
+        // This shifts band 5 channels up.
+        // In case one of the bands reaches 80 some special handling is done (see below).
 
-             // Go to next band start channel (5 channels further)
-             band1_u16 += 5;
-             band2_u16 += 5;
+        // Determine band 1 and 2 start channel
+        uint16_t band1_u16 = 7;
+        uint16_t band2_u16 = band1_u16 + 37;
+        for( uint16_t idx_u16 = 10; idx_u16 < 84; idx_u16++ )
+        {
+          // Stop if index is equal to band info byte
+          if( et6i_s.prv_s.bandInfo_u8 == idx_u16 )
+          {
+            break;
+          }
 
-             // On band start channel above 80, use new start channel that
-             // is 37 smaller than the current other band start channel
-             if( band2_u16 > 80 )
-             {
-               band2_u16 = band1_u16 - 37;
-             }
-             if( band1_u16 > 80 )
-             {
-               band1_u16 = band2_u16 - 37;
-             }
-           }
-           et6i_s.prv_s.strtBand1_u8 = band1_u16;
-           et6i_s.prv_s.strtBand2_u8 = band2_u16;
-           et6i_s.prv_s.cnt_u32      = 0;
+          // Go to next band start channel (5 channels further)
+          band1_u16 += 5;
+          band2_u16 += 5;
 
-           // Go to next state
-           xil_printf( "Scanning for payload ... " );
-           et6i_s.prv_s.st_e = et6i_stMacConfigRxData_E;
+          // On band start channel above 80, use new start channel that
+          // is 37 smaller than the current other band start channel
+          if( band2_u16 > 80 )
+          {
+            band2_u16 = band1_u16 - 37;
+          }
+          if( band1_u16 > 80 )
+          {
+            band1_u16 = band2_u16 - 37;
+          }
+        }
+        et6i_s.prv_s.strtBand1_u8 = band1_u16;
+        et6i_s.prv_s.strtBand2_u8 = band2_u16;
+        et6i_s.prv_s.cnt_u32      = 0;
 
-         }
-       }
+        // Go to next state
+        xil_printf( "Scanning for payload ... " );
+        et6i_s.prv_s.st_e = et6i_stMacConfigRxData_E;
+
+        }
+      }
     }
 
     break;
@@ -235,9 +238,10 @@ void et6i( void )
           xil_printf( "ok\n" );
 
           // Operational
-          et6i_s.prv_s.st_e       = et6i_stMacRx_E;
-          et6i_s.prv_s.cnt_u32    = 0;
-          et6i_s.outp_s.flgCon_u8 = 1;
+          et6i_s.prv_s.st_e        = et6i_stMacRx_E;
+          et6i_s.prv_s.cnt_u32     = 0;
+          et6i_s.outp_s.flgCon_u8  = 1;
+          et6i_s.outp_s.flgBind_u8 = 0;
         }
       }
     }
