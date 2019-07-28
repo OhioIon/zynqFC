@@ -63,6 +63,7 @@ int main( void )
     if( gpio_get_BTN4() )
     {
       xil_printf( "!!! STOP !!!\n" );
+      gpio_set_LD4( 0 );
       while(1);
     }
   }
@@ -77,9 +78,9 @@ static void deadloop( void )
   while( 1 )
   {
     gpio_set_LD4( 1 );
-    usleep( 100000 );
+    usleep( 50000 );
     gpio_set_LD4( 0 );
-    usleep( 100000 );
+    usleep( 50000 );
   }
 }
 

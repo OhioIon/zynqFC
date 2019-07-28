@@ -4,6 +4,7 @@
 #include "DevOutp.h"
 #include "DevInp.h"
 #include "Veh.h"
+#include "gpio.h"
 
 #include <xparameters.h>
 #include <xil_printf.h>
@@ -41,6 +42,12 @@ uint8_t DevOutp_init( void )
   DevOutp_s.dshotMotRearRght_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_3_0;
   retVal_u8 += dshot_init( &DevOutp_s.dshotMotRearRght_s );
 
+  // Init LED
+  DevOutp_s.led4_s.prm_s.tiCyc_us_u16       = 1200; // TODO - Fix cycle time
+  DevOutp_s.led4_s.prm_s.tiBlinkSlow_ms_u16 = 1000;
+  DevOutp_s.led4_s.prm_s.tiBlinkFast_ms_u16 = 200;
+  retVal_u8 += led_init( &DevOutp_s.led4_s );
+
   return retVal_u8;
 }
 
@@ -61,18 +68,34 @@ void DevOutp( void )
     dshot( &DevOutp_s.dshotMotRearRght_s );
 
     // Debug
-    /*static uint8_t cnt_u8;
+    static uint8_t cnt_u8;
     if( cnt_u8++ > 200 )
     {
       outbyte(0);
       xil_printf("%4d, %4d\n",
-          DevOutp_s.dshotMotFrntLeft_s.inp_s.rawData_u16,
-          DevOutp_s.dshotMotFrntRght_s.inp_s.rawData_u16);
+          DevOutp_s.dshotMotFrntLeft_s.inp_s.thrData_u16,
+          DevOutp_s.dshotMotFrntRght_s.inp_s.thrData_u16);
       xil_printf("%4d, %4d\n",
-          DevOutp_s.dshotMotRearLeft_s.inp_s.rawData_u16,
-          DevOutp_s.dshotMotRearRght_s.inp_s.rawData_u16);
-    }*/
+          DevOutp_s.dshotMotRearLeft_s.inp_s.thrData_u16,
+          DevOutp_s.dshotMotRearRght_s.inp_s.thrData_u16);
+    }
   }
+
+  // Use LD4 on Zynbo board to indicate RX connection state
+  DevOutp_s.led4_s.inp_s.fct_e = led_fctBlinkSlow_E;
+
+  if( et6i_s.outp_s.flgBind_u8 )
+  {
+    DevOutp_s.led4_s.inp_s.fct_e = led_fctBlinkFast_E;
+  }
+
+  if( et6i_s.outp_s.flgCon_u8 )
+  {
+    DevOutp_s.led4_s.inp_s.fct_e = led_fctOn_E;
+  }
+
+  led( &DevOutp_s.led4_s );
+  gpio_set_LD4( DevOutp_s.led4_s.outp_s.flgOn_u8 );
 
 }
 

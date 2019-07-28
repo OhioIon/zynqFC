@@ -14,6 +14,7 @@
 
 #include "dshot.h"
 #include "dshotWaveform.h"
+#include "led.h"
 
 /******************* Defines ********************/
 
@@ -29,6 +30,9 @@ typedef struct DevOutp_s
   dshot_ts dshotMotFrntRght_s;
   dshot_ts dshotMotRearLeft_s;
   dshot_ts dshotMotRearRght_s;
+
+  // LEDs
+  led_ts led4_s;
 
 }DevOutp_ts;
 
