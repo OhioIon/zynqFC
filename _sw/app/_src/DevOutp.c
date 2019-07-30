@@ -1,13 +1,14 @@
 #define DEVOUTP_C
 
 /****************** Includes ********************/
+
 #include "DevOutp.h"
+#include "Bas.h"
 #include "DevInp.h"
 #include "Veh.h"
-#include "gpio.h"
 
+#include <stdio.h>
 #include <xparameters.h>
-#include <xil_printf.h>
 
 /******************* Defines ********************/
 
@@ -71,17 +72,17 @@ void DevOutp( void )
     static uint8_t cnt_u8;
     if( cnt_u8++ > 200 )
     {
-      outbyte(0);
-      xil_printf("%4d, %4d\n",
+      putchar(0);
+      printf("%4d, %4d\n",
           DevOutp_s.dshotMotFrntLeft_s.inp_s.thrData_u16,
           DevOutp_s.dshotMotFrntRght_s.inp_s.thrData_u16);
-      xil_printf("%4d, %4d\n",
+      printf("%4d, %4d\n",
           DevOutp_s.dshotMotRearLeft_s.inp_s.thrData_u16,
           DevOutp_s.dshotMotRearRght_s.inp_s.thrData_u16);
     }
   }
 
-  // Use LD4 on Zynbo board to indicate RX connection state
+  // Use LD4 on Zybo board to indicate RX connection state
   DevOutp_s.led4_s.inp_s.fct_e = led_fctBlinkSlow_E;
 
   if( et6i_s.outp_s.flgBind_u8 )

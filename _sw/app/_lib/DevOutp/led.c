@@ -3,7 +3,8 @@
 /****************** Includes ********************/
 
 #include "led.h"
-#include "xil_printf.h"
+
+#include <string.h>
 
 /******************* Defines ********************/
 

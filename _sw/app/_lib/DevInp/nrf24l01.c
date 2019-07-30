@@ -4,6 +4,9 @@
 
 #include "nrf24l01.h"
 
+#include <string.h>
+#include <sleep.h>
+
 /******************* Defines ********************/
 
 #define CONFIG      0x00 // Configuration register

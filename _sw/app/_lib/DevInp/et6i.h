@@ -9,10 +9,7 @@
 
 /****************** Includes ********************/
 
-#include <stdlib.h>
 #include <stdint.h>
-
-#include "nrf24l01.h"
 
 /******************* Defines ********************/
 

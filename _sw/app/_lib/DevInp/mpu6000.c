@@ -4,6 +4,8 @@
 
 #include "mpu6000.h"
 
+#include <string.h>
+
 /******************* Defines ********************/
 
 #define REG_GYRO_CFG   0x1B // Register - GYRO_CONFIG   - Gyroscope Configuration
@@ -48,10 +50,14 @@ static void mpu6000_spiWriteReg( uint8_t addr_u8, uint8_t data_u8 );
 // Initialize MPU-6000 chip
 uint8_t mpu6000_init( void )
 {
-  uint8_t reg_u8;
+  // Initialize privates
+  memset( &mpu6000_s.prv_s, 0, sizeof(mpu6000_s.prv_s) );
+
+  // Initialize outputs
+  memset( &mpu6000_s.outp_s, 0, sizeof(mpu6000_s.outp_s) );
 
   // Test "who am I" register
-  reg_u8 = mpu6000_spiReadReg( 0x75 );
+  uint8_t reg_u8 = mpu6000_spiReadReg( 0x75 );
   if( reg_u8 != 0x68 )
   {
     // No connection to IMU

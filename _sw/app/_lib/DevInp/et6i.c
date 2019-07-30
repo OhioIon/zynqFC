@@ -3,7 +3,9 @@
 /****************** Includes ********************/
 
 #include "et6i.h"
-#include "xil_printf.h"
+#include "nrf24l01.h"
+
+#include <stdio.h>
 
 /******************* Defines ********************/
 
@@ -54,7 +56,7 @@ void et6i( void )
     et6i_s.prv_s.st_e = et6i_stMacWaitForBinding_E;
 
     // Debug
-    xil_printf("Wait for TX signal ... ");
+    printf("Wait for TX signal ... ");
 
     break;
 
@@ -105,8 +107,8 @@ void et6i( void )
         et6i_s.prv_s.bandInfo_u8 = dat_au8[3];
 
         // Debug info
-        xil_printf("ok\n");
-        xil_printf("Bind ... ");
+        printf("ok\n");
+        printf("Bind ... ");
       }
       else // On all other binding packets compare for identical values
       {
@@ -118,15 +120,15 @@ void et6i( void )
         et6i_s.prv_s.st_e = et6i_stMacBindingAbort_E;
 
         // Debug info
-        xil_printf("Abort... wrong repetition\n");
-        xil_printf("Addr %02X:%02X:%02X != %02X:%02X:%02X\n",
+        printf("Abort... wrong repetition\n");
+        printf("Addr %02X:%02X:%02X != %02X:%02X:%02X\n",
            et6i_s.prv_s.addr_au8[0],
            et6i_s.prv_s.addr_au8[1],
            et6i_s.prv_s.addr_au8[2],
            dat_au8[0],
            dat_au8[1],
            dat_au8[2] );
-        xil_printf("Channel %02X != %02X\n", et6i_s.prv_s.bandInfo_u8, dat_au8[3] );
+        printf("Channel %02X != %02X\n", et6i_s.prv_s.bandInfo_u8, dat_au8[3] );
       }
       else
       {
@@ -137,7 +139,7 @@ void et6i( void )
       // transmitter sending binding information we consider binding success
       if( et6i_s.prv_s.cnt_u32 >= 200 )
       {
-        xil_printf( "ok\n" );
+        printf( "ok\n" );
 
         // Transmitter will transmit on two bands.
         // Each band is 7 channels wide.
@@ -179,7 +181,7 @@ void et6i( void )
         et6i_s.prv_s.cnt_u32      = 0;
 
         // Go to next state
-        xil_printf( "Scanning for payload ... " );
+        printf( "Scanning for payload ... " );
         et6i_s.prv_s.st_e = et6i_stMacConfigRxData_E;
 
         }
@@ -235,7 +237,7 @@ void et6i( void )
         // In case we received 20 correct packets we are operational
         if( et6i_s.prv_s.cnt_u32 >= 20 )
         {
-          xil_printf( "ok\n" );
+          printf( "ok\n" );
 
           // Operational
           et6i_s.prv_s.st_e        = et6i_stMacRx_E;

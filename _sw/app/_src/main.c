@@ -2,26 +2,20 @@
 
 /****************** Includes ********************/
 
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <sleep.h>
 
-#include <xtime_l.h>
-
 #include "Bas.h"
-#include "DevOutp.h"
 #include "DevInp.h"
 #include "Veh.h"
+#include "DevOutp.h"
 
 /******************* Defines ********************/
 
 /******************** Types *********************/
 
 /***************** Private Data *****************/
-
-XTime tic_us_u64 = 0;
-XTime toc_us_u64 = 0;
-XTime loop_us_u64 = 0;
 
 /****************** Prototypes ******************/
 
@@ -35,20 +29,21 @@ int main( void )
   uint8_t retVal_u8 = 0;
 
   // Boot up message
-  outbyte(0); // clear-screen
-  xil_printf( "///////// zynqFC /////////\n" );
+  setbuf(stdout, NULL); // Make STDOUT non-buffered
+  putchar(0); // clear-screen
+  printf( "///////// zynqFC /////////\n" );
 
   // Wait 100 ms power-on delay
   usleep( 100000 );
 
   // Initialization
-  xil_printf( "Init ... " );
+  printf( "Init ... " );
   if( retVal_u8 == 0) retVal_u8 += Bas_init();
   if( retVal_u8 == 0) retVal_u8 += DevInp_init();
   if( retVal_u8 == 0) retVal_u8 += Veh_init();
   if( retVal_u8 == 0) retVal_u8 += DevOutp_init();
   if( retVal_u8 != 0) deadloop();
-  xil_printf("ok\n");
+  printf("ok\n");
 
   // Runtime
   while( 1 )
@@ -62,7 +57,7 @@ int main( void )
     // Check button and stop at breakpoint
     if( gpio_get_BTN4() )
     {
-      xil_printf( "!!! STOP !!!\n" );
+      printf( "!!! STOP !!!\n" );
       gpio_set_LD4( 0 );
       while(1);
     }
@@ -74,7 +69,7 @@ int main( void )
 // Infinite loop - blinks LED
 static void deadloop( void )
 {
-  xil_printf("FAIL\n");
+  printf("FAIL\n");
   while( 1 )
   {
     gpio_set_LD4( 1 );

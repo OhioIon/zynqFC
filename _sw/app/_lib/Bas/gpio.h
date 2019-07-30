@@ -1,7 +1,6 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
-#include <stdlib.h>
 #include <stdint.h>
 
 uint8_t gpio_init( void );

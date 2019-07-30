@@ -1,9 +1,10 @@
 #define DEVINP_C
 
 /****************** Includes ********************/
+
 #include "DevInp.h"
 
-#include <xil_printf.h>
+#include <stdio.h>
 
 /******************* Defines ********************/
 
@@ -41,11 +42,11 @@ void DevInp( void )
   static uint8_t toOld_u8;
   if( (toOld_u8 == 0) && (et6i_s.outp_s.flgLost_u8 != 0) )
   {
-    xil_printf( "!!! Signal Lost !!!\n" );
+    printf( "!!! Signal Lost !!!\n" );
   }
   if( (toOld_u8 == 1) && (et6i_s.outp_s.flgLost_u8 == 0) )
   {
-    xil_printf( "!!! Signal Restored !!!\n" );
+    printf( "!!! Signal Restored !!!\n" );
   }
   toOld_u8 = et6i_s.outp_s.flgLost_u8;
 

@@ -9,9 +9,7 @@
 
 /****************** Includes ********************/
 
-#include <stdlib.h>
 #include <stdint.h>
-#include <sleep.h>
 
 /******************* Defines ********************/
 

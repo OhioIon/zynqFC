@@ -5,7 +5,7 @@
 #include "Veh.h"
 #include "DevInp.h"
 
-#include <xil_printf.h>
+#include <stdio.h>
 #include <math.h>
 
 /******************* Defines ********************/
@@ -101,12 +101,12 @@ uint8_t Veh_init( void )
   Veh_s.pidPit_s.prm_s.kp_perml_u16 = 1000;
   Veh_s.pidPit_s.prm_s.ki_perml_u16 = 0;
   Veh_s.pidPit_s.prm_s.kd_perml_u16 = 0;
-  if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidYaw_s );
+  if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidPit_s );
 
   Veh_s.pidRol_s.prm_s.kp_perml_u16 = 1000;
   Veh_s.pidRol_s.prm_s.ki_perml_u16 = 0;
   Veh_s.pidRol_s.prm_s.kd_perml_u16 = 0;
-  if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidYaw_s );
+  if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidRol_s );
 
   return retVal_u8;
 }
@@ -144,7 +144,7 @@ void Veh( void )
   static uint8_t flgArmOld_u8 = 0;
   if( (flgArmOld_u8 == 0) && (Veh_s.arm_s.outp_s.flgArmed_u8 != 0) )
   {
-    xil_printf( "!!! ARMED !!!\n" );
+    printf( "!!! ARMED !!!\n" );
   }
   flgArmOld_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
 
@@ -179,7 +179,6 @@ void Veh( void )
   pid( &Veh_s.pidRol_s );
 
   // TODO: Move this to module
-  // YAW
   int16_t fl_s16 = 0;
   int16_t fr_s16 = 0;
   int16_t rl_s16 = 0;
