@@ -63,7 +63,7 @@ typedef struct pid_s
 
 /******************* Interface ******************/
 
-PID_SCOPE uint8_t pid_init( pid_ts * inst_ps );
-PID_SCOPE void pid( pid_ts * inst_ps );
+PID_SCOPE uint8_t pid_init( pid_ts * ps );
+PID_SCOPE void pid( pid_ts * ps );
 
 #endif /* PID_H_ */

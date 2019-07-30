@@ -68,7 +68,7 @@ typedef struct arm_s
 
 /******************* Interface ******************/
 
-ARM_SCOPE uint8_t arm_init( arm_ts * inst_ps );
-ARM_SCOPE void arm( arm_ts * inst_ps );
+ARM_SCOPE uint8_t arm_init( arm_ts * ps );
+ARM_SCOPE void arm( arm_ts * ps );
 
 #endif /* ARM_H_ */

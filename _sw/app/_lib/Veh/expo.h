@@ -45,7 +45,7 @@ typedef struct expo_s
 
 /******************* Interface ******************/
 
-EXPO_SCOPE uint8_t expo_init( expo_ts * inst_ps );
-EXPO_SCOPE void expo( expo_ts * inst_ps );
+EXPO_SCOPE uint8_t expo_init( expo_ts * ps );
+EXPO_SCOPE void expo( expo_ts * ps );
 
 #endif /* EXPO_H_ */

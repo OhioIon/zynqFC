@@ -64,7 +64,7 @@ typedef struct led_s
 
 /******************* Interface ******************/
 
-LED_SCOPE uint8_t led_init( led_ts *inst_ps );
-LED_SCOPE void led( led_ts *inst_ps );
+LED_SCOPE uint8_t led_init( led_ts *ps );
+LED_SCOPE void led( led_ts *ps );
 
 #endif /* LED_H_ */

@@ -55,7 +55,7 @@ typedef struct channel_s
 
 /******************* Interface ******************/
 
-CHANNEL_SCOPE uint8_t channel_init( channel_ts * inst_ps );
-CHANNEL_SCOPE void channel( channel_ts * inst_ps );
+CHANNEL_SCOPE uint8_t channel_init( channel_ts * ps );
+CHANNEL_SCOPE void channel( channel_ts * ps );
 
 #endif /* CHANNEL_H_ */

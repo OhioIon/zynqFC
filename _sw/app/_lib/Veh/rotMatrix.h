@@ -49,7 +49,7 @@ typedef struct rotMatrix_s
 
 /******************* Interface ******************/
 
-ROTMATRIX_SCOPE uint8_t rotMatrix_init( rotMatrix_ts * inst_ps );
-ROTMATRIX_SCOPE void rotMatrix( rotMatrix_ts * inst_ps );
+ROTMATRIX_SCOPE uint8_t rotMatrix_init( rotMatrix_ts * ps );
+ROTMATRIX_SCOPE void rotMatrix( rotMatrix_ts * ps );
 
 #endif /* ROTMATRIX_H_ */

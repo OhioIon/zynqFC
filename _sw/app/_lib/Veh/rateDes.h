@@ -45,7 +45,7 @@ typedef struct rateDes_s
 
 /******************* Interface ******************/
 
-RATEDES_SCOPE uint8_t rateDes_init( rateDes_ts * inst_ps );
-RATEDES_SCOPE void rateDes( rateDes_ts * inst_ps );
+RATEDES_SCOPE uint8_t rateDes_init( rateDes_ts * ps );
+RATEDES_SCOPE void rateDes( rateDes_ts * ps );
 
 #endif /* RATEDES_H_ */
