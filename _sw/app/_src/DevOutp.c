@@ -95,6 +95,11 @@ void DevOutp( void )
     DevOutp_s.led4_s.inp_s.fct_e = led_fctOn_E;
   }
 
+  if( et6i_s.outp_s.flgLost_u8 )
+  {
+    DevOutp_s.led4_s.inp_s.fct_e = led_fctOff_E;
+  }
+
   led( &DevOutp_s.led4_s );
   gpio_set_LD4( DevOutp_s.led4_s.outp_s.flgOn_u8 );
 
