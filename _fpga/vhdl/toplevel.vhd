@@ -33,6 +33,9 @@ entity toplevel is
     dshot_1  : out STD_LOGIC;
     dshot_2  : out STD_LOGIC;
     dshot_3  : out STD_LOGIC;
+    -- EEPROM IIC
+    iic_eeprom_scl : inout STD_LOGIC;
+    iic_eeprom_sda : inout STD_LOGIC;
     -- IMU IIC
     iic_imu_scl : inout STD_LOGIC;
     iic_imu_sda : inout STD_LOGIC
@@ -71,6 +74,13 @@ architecture STRUCTURE of toplevel is
     dshot_1 : out STD_LOGIC;
     dshot_2 : out STD_LOGIC;
     dshot_3 : out STD_LOGIC;
+    -- EEPROM
+    iic_eeprom_scl_i : in STD_LOGIC;
+    iic_eeprom_scl_o : out STD_LOGIC;
+    iic_eeprom_scl_t : out STD_LOGIC;
+    iic_eeprom_sda_i : in STD_LOGIC;
+    iic_eeprom_sda_o : out STD_LOGIC;
+    iic_eeprom_sda_t : out STD_LOGIC;
     -- IIC IMU (MPU 6000)
     iic_imu_scl_i : in STD_LOGIC;
     iic_imu_scl_o : out STD_LOGIC;
@@ -89,6 +99,15 @@ architecture STRUCTURE of toplevel is
     IO : inout STD_LOGIC
   );
   end component IOBUF;
+  
+    
+  -- EEPROM IIC
+  signal iic_eeprom_scl_i : STD_LOGIC;
+  signal iic_eeprom_scl_o : STD_LOGIC;
+  signal iic_eeprom_scl_t : STD_LOGIC;
+  signal iic_eeprom_sda_i : STD_LOGIC;
+  signal iic_eeprom_sda_o : STD_LOGIC;
+  signal iic_eeprom_sda_t : STD_LOGIC;
   
   -- IMU IIC
   signal iic_imu_scl_i : STD_LOGIC;
@@ -132,7 +151,14 @@ port map (
   dshot_0 => dshot_0,
   dshot_1 => dshot_1,
   dshot_2 => dshot_2,
-  dshot_3 => dshot_3,  
+  dshot_3 => dshot_3,
+    -- IMU IIC
+  iic_eeprom_scl_i => iic_eeprom_scl_i,
+  iic_eeprom_scl_o => iic_eeprom_scl_o,
+  iic_eeprom_scl_t => iic_eeprom_scl_t,
+  iic_eeprom_sda_i => iic_eeprom_sda_i,
+  iic_eeprom_sda_o => iic_eeprom_sda_o,
+  iic_eeprom_sda_t => iic_eeprom_sda_t,  
   -- IMU IIC
   iic_imu_scl_i => iic_imu_scl_i,
   iic_imu_scl_o => iic_imu_scl_o,
@@ -140,6 +166,23 @@ port map (
   iic_imu_sda_i => iic_imu_sda_i,
   iic_imu_sda_o => iic_imu_sda_o,
   iic_imu_sda_t => iic_imu_sda_t
+);
+ 
+-- EEPROM IIC 
+iic_eeprom_scl_iobuf: component IOBUF
+port map (
+  I  => iic_eeprom_scl_o,
+  IO => iic_eeprom_scl,
+  O  => iic_eeprom_scl_i,
+  T  => iic_eeprom_scl_t
+);
+
+iic_eeprom_sda_iobuf: component IOBUF
+port map (
+  I  => iic_eeprom_sda_o,
+  IO => iic_eeprom_sda,
+  O  => iic_eeprom_sda_i,
+  T  => iic_eeprom_sda_t
 );
     
 -- IMU IIC 
