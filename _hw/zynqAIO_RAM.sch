@@ -980,4 +980,6 @@ Wire Wire Line
 	6350 5100 6650 5100
 Wire Wire Line
 	6650 5100 7050 5100
+Text Notes 2650 1500 0    50   ~ 0
+ Micron MT41J128M16JT-125
 $EndSCHEMATC

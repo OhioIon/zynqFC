@@ -79,7 +79,7 @@ Connection ~ 4800 3400
 Wire Wire Line
 	4200 3900 4200 3800
 Wire Wire Line
-	4050 3800 4900 3800
+	4050 3800 4200 3800
 Wire Wire Line
 	4350 3800 4350 3750
 Connection ~ 4350 3800
@@ -91,7 +91,7 @@ Wire Wire Line
 Connection ~ 4350 3400
 Connection ~ 4050 3400
 Wire Wire Line
-	4900 3400 3900 3400
+	4900 3400 4800 3400
 Wire Wire Line
 	4900 3700 4800 3700
 Wire Wire Line
@@ -134,7 +134,7 @@ $EndComp
 Wire Wire Line
 	5900 3000 5900 2900
 Wire Wire Line
-	5600 3400 6300 3400
+	5600 3400 5900 3400
 Wire Wire Line
 	5900 3400 5900 3300
 Connection ~ 5900 3400
@@ -142,4 +142,18 @@ Text GLabel 6300 3400 2    60   Input ~ 0
 BARO_SPI_nCS
 Text Notes 7300 3750 0    60   ~ 0
 to Zynq\nPL bank\n35
+Wire Wire Line
+	4800 3400 4350 3400
+Wire Wire Line
+	4350 3800 4800 3800
+Wire Wire Line
+	4200 3800 4350 3800
+Wire Wire Line
+	4350 3400 4050 3400
+Wire Wire Line
+	4050 3400 3900 3400
+Wire Wire Line
+	4800 3800 4900 3800
+Wire Wire Line
+	5900 3400 6300 3400
 $EndSCHEMATC

@@ -212,7 +212,7 @@ Wire Wire Line
 Wire Wire Line
 	2450 2150 2950 2150
 Wire Wire Line
-	2450 2300 2950 2300
+	2450 2300 2600 2300
 Wire Wire Line
 	2450 2450 2950 2450
 Wire Wire Line
@@ -229,7 +229,7 @@ Connection ~ 2600 2300
 Wire Wire Line
 	2850 1450 2850 1350
 Wire Wire Line
-	2000 3300 2950 3300
+	2000 3300 2250 3300
 Wire Wire Line
 	2950 3450 2900 3450
 Wire Wire Line
@@ -238,9 +238,9 @@ Connection ~ 2900 3300
 Wire Wire Line
 	2950 3600 2900 3600
 Wire Wire Line
-	2900 3600 2900 3800
+	2900 3600 2900 3700
 Wire Wire Line
-	2250 3700 2900 3700
+	2250 3700 2600 3700
 Wire Wire Line
 	2600 3700 2600 3650
 Connection ~ 2900 3700
@@ -278,11 +278,11 @@ Wire Wire Line
 Wire Wire Line
 	6750 2650 6750 3500
 Wire Wire Line
-	6750 3500 5900 3500
+	6750 3500 6550 3500
 Wire Wire Line
 	6350 3950 6350 3900
 Wire Wire Line
-	6150 3900 6900 3900
+	6150 3900 6350 3900
 Wire Wire Line
 	6150 3900 6150 3850
 Wire Wire Line
@@ -357,9 +357,9 @@ F 3 "" H 2800 5450 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2250 5700 3100 5700
+	2250 5700 2600 5700
 Wire Wire Line
-	2250 5900 3100 5900
+	2250 5900 2800 5900
 Wire Wire Line
 	2600 5700 2600 5600
 Connection ~ 2600 5700
@@ -369,7 +369,7 @@ Connection ~ 2800 5900
 Wire Wire Line
 	2600 5300 2600 5200
 Wire Wire Line
-	2600 5200 4350 5200
+	2600 5200 2800 5200
 Wire Wire Line
 	2800 5300 2800 5200
 Connection ~ 2800 5200
@@ -409,4 +409,34 @@ Text GLabel 2250 5900 0    60   Input ~ 0
 EEP_I2C_SDA
 Text Notes 1050 5950 0    60   ~ 0
 to Zynq\nPS bank \n501
+Wire Wire Line
+	2600 2300 2950 2300
+Wire Wire Line
+	2900 3300 2950 3300
+Wire Wire Line
+	2900 3700 2900 3800
+Wire Wire Line
+	2600 3300 2900 3300
+Wire Wire Line
+	2600 3700 2900 3700
+Wire Wire Line
+	2250 3300 2600 3300
+Wire Wire Line
+	6350 3900 6550 3900
+Wire Wire Line
+	6150 3500 5900 3500
+Wire Wire Line
+	6550 3500 6150 3500
+Wire Wire Line
+	6550 3900 6900 3900
+Wire Wire Line
+	2600 5700 3100 5700
+Wire Wire Line
+	2800 5900 3100 5900
+Wire Wire Line
+	2800 5200 3050 5200
+Wire Wire Line
+	3050 5200 3500 5200
+Wire Wire Line
+	3500 5200 4350 5200
 $EndSCHEMATC

@@ -69,7 +69,7 @@ $EndComp
 Wire Wire Line
 	3300 3200 3850 3200
 Wire Wire Line
-	3300 3300 3850 3300
+	3300 3300 3600 3300
 Wire Wire Line
 	3300 3400 3850 3400
 Wire Wire Line
@@ -93,7 +93,7 @@ $EndComp
 Wire Wire Line
 	3000 4150 3000 4100
 Wire Wire Line
-	2800 4100 3850 4100
+	2800 4100 3000 4100
 Connection ~ 3000 4100
 Wire Wire Line
 	3350 4150 3350 4100
@@ -108,7 +108,7 @@ Wire Wire Line
 Wire Wire Line
 	3750 4200 3750 4550
 Wire Wire Line
-	2800 4550 3850 4550
+	2800 4550 3000 4550
 Connection ~ 3750 4550
 Wire Wire Line
 	3350 4450 3350 4550
@@ -175,7 +175,7 @@ F 3 "" H 7500 3150 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7300 3750 7800 3750
+	7300 3750 7500 3750
 Wire Wire Line
 	7500 3750 7500 3300
 Connection ~ 7500 3750
@@ -204,9 +204,9 @@ F 3 "" H 9400 2850 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8500 2550 8500 3050
+	8500 2550 8500 2650
 Wire Wire Line
-	8500 2650 9400 2650
+	8500 2650 9000 2650
 Wire Wire Line
 	9400 2650 9400 2700
 Wire Wire Line
@@ -238,7 +238,7 @@ $EndComp
 Wire Wire Line
 	9200 3100 9200 3050
 Wire Wire Line
-	9000 3050 9400 3050
+	9000 3050 9200 3050
 Wire Wire Line
 	9000 3050 9000 3000
 Wire Wire Line
@@ -282,4 +282,30 @@ Text Notes 7550 4850 0    60   ~ 0
 TODO: MPU-6000 noch nicht fertig angeschlossen!
 Text Notes 6100 3750 0    60   ~ 0
 to Zynq\nPS bank\n501
+Wire Wire Line
+	3600 3300 3850 3300
+Wire Wire Line
+	3000 4100 3350 4100
+Wire Wire Line
+	3350 4100 3800 4100
+Wire Wire Line
+	3800 4100 3850 4100
+Wire Wire Line
+	3750 4550 3850 4550
+Wire Wire Line
+	3350 4550 3750 4550
+Wire Wire Line
+	3000 4550 3350 4550
+Wire Wire Line
+	7500 3750 7800 3750
+Wire Wire Line
+	9000 2650 9400 2650
+Wire Wire Line
+	8500 2650 8500 3050
+Wire Wire Line
+	9200 3050 9400 3050
+Text GLabel 9500 3450 2    60   Input ~ 0
+IMU_INT3
+Wire Wire Line
+	9200 3450 9500 3450
 $EndSCHEMATC
