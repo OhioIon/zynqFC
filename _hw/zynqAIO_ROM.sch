@@ -439,4 +439,6 @@ Wire Wire Line
 	3050 5200 3500 5200
 Wire Wire Line
 	3500 5200 4350 5200
+Text Notes 3150 5100 0    50   ~ 0
+Microchip 24AA02E48 
 $EndSCHEMATC
