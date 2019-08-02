@@ -10,6 +10,7 @@
   - it takes a while to generate the FPGA bitstream (toplevel.bit)
   - the bitfile is the FPGA "software" that needs to be loaded into the FPGA part of the Zynq on every boot
 - once complete select "Tools" -> "Run Tcl Script..."
+- Hint: If SDK is already open it should be closed before running the tcl script!
 - select the "exportToSDL.tcl" located in the vivado folder
   - this will use the hardware definition file toplevel.sysdef
   - it is automatically created from Vivado during build and includes the bitfile as well (it's basically a .zip folder)
