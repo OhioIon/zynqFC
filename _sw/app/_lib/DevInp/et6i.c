@@ -5,7 +5,10 @@
 #include "et6i.h"
 #include "nrf24l01.h"
 
+#include <sleep.h>
+
 #include <stdio.h>
+#include <string.h>
 
 /******************* Defines ********************/
 
