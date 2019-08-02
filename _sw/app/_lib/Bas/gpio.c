@@ -21,10 +21,12 @@ uint8_t gpio_init( void )
   // Make pin MIO7 (LED LD4 on Zybo) output
   XGpioPs_SetDirectionPin(&XGpioPs_s, 7, 1 );
   XGpioPs_SetOutputEnablePin(&XGpioPs_s, 7, 1);
+  XGpioPs_WritePin( &XGpioPs_s, 7, 0 );
 
   // Make pin MIO14 (CE pin on nRF24L01) output
   XGpioPs_SetDirectionPin( &XGpioPs_s, 14, 1 );
   XGpioPs_SetOutputEnablePin(&XGpioPs_s, 14, 1);
+  XGpioPs_WritePin( &XGpioPs_s, 14, 0 );
 
   // Make pin MIO15 (IRQ pin on nRF24L01) input
   XGpioPs_SetDirectionPin( &XGpioPs_s, 15, 0 );
