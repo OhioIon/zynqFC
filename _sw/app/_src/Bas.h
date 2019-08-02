@@ -13,6 +13,7 @@
 
 #include "gpio.h"
 #include "spi.h"
+#include "iic.h"
 
 /******************* Defines ********************/
 
