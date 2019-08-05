@@ -17,19 +17,19 @@
 
 typedef struct expo_inp_s
 {
-  int16_t in_perml_s16; // Channel value [0.1 %]
+  int16_t in_perml_s16; // Channel value [‰]
 
 }expo_inp_ts;
 
 typedef struct expo_prm_s
 {
-  uint8_t expo_perc_u8; // Expo value [%]. Only positve supported (decrease sensitivity around stick center)
+  uint8_t expo_perc_u8; // Expo value [%]. Only positve supported (decrease sensitivity around stick center).
 
 }expo_prm_ts;
 
 typedef struct expo_outp_s
 {
-  int16_t out_perml_s16; // Channel value [0.1 %]
+  int16_t out_perml_s16; // Channel value [‰]
 
 }expo_outp_ts;
 

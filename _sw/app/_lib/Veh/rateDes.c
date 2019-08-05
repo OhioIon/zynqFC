@@ -20,7 +20,7 @@ uint8_t rateDes_init( rateDes_ts * ps )
   // Initialize privates
 
   // Initialize outputs
-  ps->outp_s.rate_degps_s16 = 0;
+  ps->outp_s.rate_p1degps_s16 = 0;
 
   // Done
   return 0;
@@ -30,10 +30,10 @@ uint8_t rateDes_init( rateDes_ts * ps )
 void rateDes( rateDes_ts * ps )
 {
   // Gain function
-  double rate_lf = (double)ps->inp_s.in_perml_s16 / 1000.0 * (double)ps->prm_s.rateMax_degps_u16;
+  double rate_p1degps_lf = (double)ps->inp_s.in_perml_s16 / 100.0 * (double)ps->prm_s.rateMax_degps_u16;
 
   // Convert to integer
-  ps->outp_s.rate_degps_s16 = rate_lf;
+  ps->outp_s.rate_p1degps_s16 = rate_p1degps_lf;
 }
 
 // EOF

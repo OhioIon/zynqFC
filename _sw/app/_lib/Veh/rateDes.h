@@ -17,19 +17,19 @@
 
 typedef struct rateDes_inp_s
 {
-  int16_t in_perml_s16; // Channel value [0.1 %]
+  int16_t in_perml_s16; // Channel value [â€°]
 
 }rateDes_inp_ts;
 
 typedef struct rateDes_prm_s
 {
-  uint16_t rateMax_degps_u16; // RC rate on max. stick deflection [°/s]
+  uint16_t rateMax_degps_u16; // RC rate on max. stick deflection [Â°/s]
 
 }rateDes_prm_ts;
 
 typedef struct rateDes_outp_s
 {
-  int16_t rate_degps_s16; // Desired rotation rate setpoint [°/s]
+  int16_t rate_p1degps_s16; // Desired rotation rate setpoint [0.1 Â°/s]
 
 }rateDes_outp_ts;
 

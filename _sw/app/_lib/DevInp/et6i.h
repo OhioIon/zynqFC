@@ -27,7 +27,7 @@ typedef enum et6i_stMac_e
 
 typedef struct et6i_prm_s
 {
-  uint16_t tiCyc_us_u16;    // Loop/cycle time [us]
+  uint16_t tiCyc_us_u16;    // Loop/cycle time [µs]
   uint16_t timeoutRx_ms_u8; // RX timeout [ms]
 
 }et6i_prm_ts;

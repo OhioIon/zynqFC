@@ -69,16 +69,17 @@ void DevOutp( void )
     dshot( &DevOutp_s.dshotMotRearRght_s );
 
     // Debug
-    static uint8_t cnt_u8;
+    static uint8_t cnt_u8 = 0;
     if( cnt_u8++ > 200 )
     {
-      putchar(0);
+      printf("Motors Raw:\n");
       printf("%4d, %4d\n",
           DevOutp_s.dshotMotFrntLeft_s.inp_s.thrData_u16,
           DevOutp_s.dshotMotFrntRght_s.inp_s.thrData_u16);
       printf("%4d, %4d\n",
           DevOutp_s.dshotMotRearLeft_s.inp_s.thrData_u16,
           DevOutp_s.dshotMotRearRght_s.inp_s.thrData_u16);
+      cnt_u8 = 0;
     }
   }
 

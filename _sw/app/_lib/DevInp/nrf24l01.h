@@ -22,26 +22,7 @@ typedef enum nrf24l01_dataRate_e
   nrf24l01_dataRate2Mbps_E,
 } nrf24l01_dataRate_te;
 
-typedef struct nrf24l01_prv_s
-{
-
-}nrf24l01_prv_ts;
-
-typedef struct nrf24l01_outp_s
-{
-
-}nrf24l01_outp_ts;
-
-typedef struct nrf24l01_s
-{
-  nrf24l01_prv_ts  prv_s;
-  nrf24l01_outp_ts outp_s;
-
-}nrf24l01_ts;
-
 /****************** Public Data *****************/
-
-NRF24L01_SCOPE nrf24l01_ts nrf24l01_s;
 
 /******************* Interface ******************/
 

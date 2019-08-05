@@ -6,7 +6,7 @@
 #include "DevInp.h"
 
 #include <stdio.h>
-#include <math.h>
+#include <string.h>
 
 /******************* Defines ********************/
 
@@ -23,46 +23,11 @@ uint8_t Veh_init( void )
 {
   uint8_t retVal_u8 = 0;
 
-  // Configure channel instances
-  Veh_s.channelYaw_s.prm_s.lo_us_u16          = 1110;
-  Veh_s.channelYaw_s.prm_s.hi_us_u16          = 1870;
-  Veh_s.channelYaw_s.prm_s.deadBand_perml_u16 = 50;
-  Veh_s.channelYaw_s.prm_s.flgPosOnly_u8      = 0;
-  Veh_s.channelYaw_s.prm_s.flgReverse_u8      = 0;
-  if( retVal_u8 == 0 ) retVal_u8 += channel_init( &Veh_s.channelYaw_s );
+  // Init privates
+  memset( &Veh_s.prv_s, 0, sizeof(Veh_s.prv_s) );
 
-  Veh_s.channelPit_s.prm_s.lo_us_u16          = 1200;
-  Veh_s.channelPit_s.prm_s.hi_us_u16          = 1887;
-  Veh_s.channelPit_s.prm_s.deadBand_perml_u16 = 20;
-  Veh_s.channelPit_s.prm_s.flgPosOnly_u8      = 0;
-  Veh_s.channelPit_s.prm_s.flgReverse_u8      = 1;
-  if( retVal_u8 == 0 ) retVal_u8 += channel_init( &Veh_s.channelPit_s );
-
-  Veh_s.channelRol_s.prm_s.lo_us_u16          = 1167;
-  Veh_s.channelRol_s.prm_s.hi_us_u16          = 1876;
-  Veh_s.channelRol_s.prm_s.deadBand_perml_u16 = 20;
-  Veh_s.channelRol_s.prm_s.flgPosOnly_u8      = 0;
-  Veh_s.channelRol_s.prm_s.flgReverse_u8      = 1;
-  if( retVal_u8 == 0 ) retVal_u8 += channel_init( &Veh_s.channelRol_s );
-
-  Veh_s.channelThr_s.prm_s.lo_us_u16          = 1093;
-  Veh_s.channelThr_s.prm_s.hi_us_u16          = 1746;
-  Veh_s.channelThr_s.prm_s.deadBand_perml_u16 = 100;
-  Veh_s.channelThr_s.prm_s.flgPosOnly_u8      = 1;
-  Veh_s.channelThr_s.prm_s.flgReverse_u8      = 0;
-  if( retVal_u8 == 0 ) retVal_u8 += channel_init( &Veh_s.channelThr_s );
-
-  // Configure rotation matrix instance
-  Veh_s.rotMatrix_s.prm_s.matrix_f[0][0] = 1.0;
-  Veh_s.rotMatrix_s.prm_s.matrix_f[0][1] = 0.0;
-  Veh_s.rotMatrix_s.prm_s.matrix_f[0][2] = 0.0;
-  Veh_s.rotMatrix_s.prm_s.matrix_f[1][0] = 0.0;
-  Veh_s.rotMatrix_s.prm_s.matrix_f[1][1] = +cos(-M_PI_4);
-  Veh_s.rotMatrix_s.prm_s.matrix_f[1][2] = -sin(-M_PI_4);
-  Veh_s.rotMatrix_s.prm_s.matrix_f[2][0] = 0.0;
-  Veh_s.rotMatrix_s.prm_s.matrix_f[2][1] = +sin(-M_PI_4);
-  Veh_s.rotMatrix_s.prm_s.matrix_f[2][2] = +cos(-M_PI_4);
-  rotMatrix_init( &Veh_s.rotMatrix_s );
+  // Init outputs
+  memset( &Veh_s.outp_s, 0, sizeof(Veh_s.outp_s) );
 
   // Configure ARM instance
   Veh_s.arm_s.prm_s.yawThres_perml_s16 = -900;
@@ -93,19 +58,22 @@ uint8_t Veh_init( void )
   if( retVal_u8 == 0 ) retVal_u8 += rateDes_init( &Veh_s.rateRol_s );
 
   // Configure PID instances
-  Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 1000;
-  Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 0;
+  Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 900;
+  Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 500;
   Veh_s.pidYaw_s.prm_s.kd_perml_u16 = 0;
+  Veh_s.pidYaw_s.prm_s.tiCyc_us_u16 = 125;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidYaw_s );
 
-  Veh_s.pidPit_s.prm_s.kp_perml_u16 = 1000;
-  Veh_s.pidPit_s.prm_s.ki_perml_u16 = 0;
-  Veh_s.pidPit_s.prm_s.kd_perml_u16 = 0;
+  Veh_s.pidPit_s.prm_s.kp_perml_u16 = 800;
+  Veh_s.pidPit_s.prm_s.ki_perml_u16 = 500;
+  Veh_s.pidPit_s.prm_s.kd_perml_u16 =   0;
+  Veh_s.pidPit_s.prm_s.tiCyc_us_u16 = 125;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidPit_s );
 
-  Veh_s.pidRol_s.prm_s.kp_perml_u16 = 1000;
-  Veh_s.pidRol_s.prm_s.ki_perml_u16 = 0;
-  Veh_s.pidRol_s.prm_s.kd_perml_u16 = 0;
+  Veh_s.pidRol_s.prm_s.kp_perml_u16 = 500;
+  Veh_s.pidRol_s.prm_s.ki_perml_u16 = 400;
+  Veh_s.pidRol_s.prm_s.kd_perml_u16 =   0;
+  Veh_s.pidRol_s.prm_s.tiCyc_us_u16 = 125;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidRol_s );
 
   return retVal_u8;
@@ -114,44 +82,35 @@ uint8_t Veh_init( void )
 // Vehicle layer
 void Veh( void )
 {
-  // Convert control input value to physical [0.1 %]
-  Veh_s.channelYaw_s.inp_s.in_us_u16 = DevInp_s.outp_s.yaw_us_u16;
-  Veh_s.channelPit_s.inp_s.in_us_u16 = DevInp_s.outp_s.pit_us_u16;
-  Veh_s.channelRol_s.inp_s.in_us_u16 = DevInp_s.outp_s.rol_us_u16;
-  Veh_s.channelThr_s.inp_s.in_us_u16 = DevInp_s.outp_s.thr_us_u16;
-  channel( &Veh_s.channelYaw_s );
-  channel( &Veh_s.channelPit_s );
-  channel( &Veh_s.channelRol_s );
-  channel( &Veh_s.channelThr_s );
-  // TODO: improve channel by using mid calibration point
-  // TODO: improve channel so output of 100 % on all channels is possible (remove some us from parameter)
-
-  // Apply rotation matrix to IMU measurement signals (sensor not aligned to frame)
-  Veh_s.rotMatrix_s.inp_s.yaw_s16 = DevInp_s.outp_s.yaw_degps_s16;
-  Veh_s.rotMatrix_s.inp_s.pit_s16 = DevInp_s.outp_s.pit_degps_s16;
-  Veh_s.rotMatrix_s.inp_s.rol_s16 = DevInp_s.outp_s.rol_degps_s16;
-  rotMatrix( &Veh_s.rotMatrix_s );
-
   // Check for arm condition
   Veh_s.arm_s.inp_s.flgCon_u8     = DevInp_s.outp_s.flgCon_u8;
-  Veh_s.arm_s.inp_s.yaw_perml_s16 = Veh_s.channelYaw_s.outp_s.out_perml_s16;
-  Veh_s.arm_s.inp_s.pit_perml_s16 = Veh_s.channelPit_s.outp_s.out_perml_s16;
-  Veh_s.arm_s.inp_s.rol_perml_s16 = Veh_s.channelRol_s.outp_s.out_perml_s16;
-  Veh_s.arm_s.inp_s.thr_perml_s16 = Veh_s.channelThr_s.outp_s.out_perml_s16;
+  Veh_s.arm_s.inp_s.yaw_perml_s16 = DevInp_s.channelYaw_s.outp_s.out_perml_s16;
+  Veh_s.arm_s.inp_s.pit_perml_s16 = DevInp_s.channelPit_s.outp_s.out_perml_s16;
+  Veh_s.arm_s.inp_s.rol_perml_s16 = DevInp_s.channelRol_s.outp_s.out_perml_s16;
+  Veh_s.arm_s.inp_s.thr_perml_s16 = DevInp_s.channelThr_s.outp_s.out_perml_s16;
   arm( &Veh_s.arm_s );
 
+  // Check for release integral part of PID condition
+  if( (Veh_s.prv_s.flgPidInteg_u8                 == 0) &&
+      (Veh_s.arm_s.outp_s.flgArmed_u8             != 0) &&
+      (DevInp_s.channelThr_s.outp_s.out_perml_s16 != 0) )
+  {
+    // PID integral part may start
+    Veh_s.prv_s.flgPidInteg_u8 = 1;
+    printf( "!!! START !!!\n" );
+  }
+
   // DEBUG
-  static uint8_t flgArmOld_u8 = 0;
-  if( (flgArmOld_u8 == 0) && (Veh_s.arm_s.outp_s.flgArmed_u8 != 0) )
+  if( (Veh_s.prv_s.flgArmOld_u8 == 0) && (Veh_s.arm_s.outp_s.flgArmed_u8 != 0) )
   {
     printf( "!!! ARMED !!!\n" );
   }
-  flgArmOld_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
+  Veh_s.prv_s.flgArmOld_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
 
   // Apply expo to channels
-  Veh_s.expoYaw_s.inp_s.in_perml_s16 = Veh_s.channelYaw_s.outp_s.out_perml_s16;
-  Veh_s.expoPit_s.inp_s.in_perml_s16 = Veh_s.channelPit_s.outp_s.out_perml_s16;
-  Veh_s.expoRol_s.inp_s.in_perml_s16 = Veh_s.channelRol_s.outp_s.out_perml_s16;
+  Veh_s.expoYaw_s.inp_s.in_perml_s16 = DevInp_s.channelYaw_s.outp_s.out_perml_s16;
+  Veh_s.expoPit_s.inp_s.in_perml_s16 = DevInp_s.channelPit_s.outp_s.out_perml_s16;
+  Veh_s.expoRol_s.inp_s.in_perml_s16 = DevInp_s.channelRol_s.outp_s.out_perml_s16;
   expo( &Veh_s.expoYaw_s );
   expo( &Veh_s.expoPit_s );
   expo( &Veh_s.expoRol_s );
@@ -165,18 +124,44 @@ void Veh( void )
   rateDes( &Veh_s.rateRol_s );
 
   // PID controller for rotation rate
-  Veh_s.pidYaw_s.inp_s.sp_degps_s16  = Veh_s.rateYaw_s.outp_s.rate_degps_s16;
-  Veh_s.pidPit_s.inp_s.sp_degps_s16  = Veh_s.ratePit_s.outp_s.rate_degps_s16;
-  Veh_s.pidRol_s.inp_s.sp_degps_s16  = Veh_s.rateRol_s.outp_s.rate_degps_s16;
-  Veh_s.pidYaw_s.inp_s.act_degps_s16 = Veh_s.rotMatrix_s.outp_s.yaw_s16;
-  Veh_s.pidPit_s.inp_s.act_degps_s16 = Veh_s.rotMatrix_s.outp_s.pit_s16;
-  Veh_s.pidRol_s.inp_s.act_degps_s16 = Veh_s.rotMatrix_s.outp_s.rol_s16;
-  Veh_s.pidYaw_s.inp_s.flgClrIntg_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
-  Veh_s.pidPit_s.inp_s.flgClrIntg_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
-  Veh_s.pidRol_s.inp_s.flgClrIntg_u8 = Veh_s.arm_s.outp_s.flgArmed_u8;
+  Veh_s.pidYaw_s.inp_s.sp_p1degps_s16  = Veh_s.rateYaw_s.outp_s.rate_p1degps_s16;
+  Veh_s.pidPit_s.inp_s.sp_p1degps_s16  = Veh_s.ratePit_s.outp_s.rate_p1degps_s16;
+  Veh_s.pidRol_s.inp_s.sp_p1degps_s16  = Veh_s.rateRol_s.outp_s.rate_p1degps_s16;
+  Veh_s.pidYaw_s.inp_s.act_p1degps_s16 = DevInp_s.outp_s.yaw_p1degps_s16;
+  Veh_s.pidPit_s.inp_s.act_p1degps_s16 = DevInp_s.outp_s.pit_p1degps_s16;
+  Veh_s.pidRol_s.inp_s.act_p1degps_s16 = DevInp_s.outp_s.rol_p1degps_s16;
+  Veh_s.pidYaw_s.inp_s.flgClrIntg_u8   = !Veh_s.prv_s.flgPidInteg_u8;
+  Veh_s.pidPit_s.inp_s.flgClrIntg_u8   = !Veh_s.prv_s.flgPidInteg_u8;
+  Veh_s.pidRol_s.inp_s.flgClrIntg_u8   = !Veh_s.prv_s.flgPidInteg_u8;
   pid( &Veh_s.pidYaw_s );
   pid( &Veh_s.pidPit_s );
   pid( &Veh_s.pidRol_s );
+
+  static uint8_t cnt_u8;
+  if( Veh_s.arm_s.outp_s.flgArmed_u8 )
+  {
+    if( cnt_u8++ > 200 )
+    {
+      putchar(0);
+      printf("Channel  Y %5d, P %5d, R %5d [0.1 %%]\n",
+          Veh_s.expoYaw_s.outp_s.out_perml_s16,
+          Veh_s.expoPit_s.outp_s.out_perml_s16,
+          Veh_s.expoRol_s.outp_s.out_perml_s16);
+      printf("Setpoint Y %5d, P %5d, R %5d [0.1 deg/s]\n",
+          Veh_s.rateYaw_s.outp_s.rate_p1degps_s16,
+          Veh_s.ratePit_s.outp_s.rate_p1degps_s16,
+          Veh_s.rateRol_s.outp_s.rate_p1degps_s16);
+      printf("Actual   Y %5d, P %5d, R %5d [0.1 deg/s]\n",
+          DevInp_s.outp_s.yaw_p1degps_s16,
+          DevInp_s.outp_s.pit_p1degps_s16,
+          DevInp_s.outp_s.rol_p1degps_s16);
+      printf("PID      Y %5d, P %5d, R %5d [0.1 deg/s]\n",
+          Veh_s.pidYaw_s.outp_s.out_p1degps_s16,
+          Veh_s.pidPit_s.outp_s.out_p1degps_s16,
+          Veh_s.pidRol_s.outp_s.out_p1degps_s16);
+      cnt_u8 = 0;
+    }
+  }
 
   // TODO: Move this to module
   int16_t fl_s16 = 0;
@@ -184,25 +169,25 @@ void Veh( void )
   int16_t rl_s16 = 0;
   int16_t rr_s16 = 0;
   // YAW
-  fl_s16 -= Veh_s.pidYaw_s.outp_s.out_degps_s16 / 4;
-  fr_s16 += Veh_s.pidYaw_s.outp_s.out_degps_s16 / 4;
-  rl_s16 += Veh_s.pidYaw_s.outp_s.out_degps_s16 / 4;
-  rr_s16 -= Veh_s.pidYaw_s.outp_s.out_degps_s16 / 4;
+  fl_s16 -= Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
+  fr_s16 += Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
+  rl_s16 += Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
+  rr_s16 -= Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
   // Pitch
-  fl_s16 += Veh_s.pidPit_s.outp_s.out_degps_s16 / 4;
-  fr_s16 += Veh_s.pidPit_s.outp_s.out_degps_s16 / 4;
-  rl_s16 -= Veh_s.pidPit_s.outp_s.out_degps_s16 / 4;
-  rr_s16 -= Veh_s.pidPit_s.outp_s.out_degps_s16 / 4;
+  fl_s16 += Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
+  fr_s16 += Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
+  rl_s16 -= Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
+  rr_s16 -= Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
   // Roll
-  fl_s16 += Veh_s.pidRol_s.outp_s.out_degps_s16 / 4;
-  fr_s16 -= Veh_s.pidRol_s.outp_s.out_degps_s16 / 4;
-  rl_s16 += Veh_s.pidRol_s.outp_s.out_degps_s16 / 4;
-  rr_s16 -= Veh_s.pidRol_s.outp_s.out_degps_s16 / 4;
+  fl_s16 += Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
+  fr_s16 -= Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
+  rl_s16 += Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
+  rr_s16 -= Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
   // Throttle
-  fl_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
-  fr_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
-  rl_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
-  rr_s16 += Veh_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
+  fl_s16 += DevInp_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
+  fr_s16 += DevInp_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
+  rl_s16 += DevInp_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
+  rr_s16 += DevInp_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
   // Min limit
   if( fl_s16 < 0 ) fl_s16 = 0;
   if( fr_s16 < 0 ) fr_s16 = 0;
@@ -214,7 +199,7 @@ void Veh( void )
   if( rl_s16 > 1999 ) rl_s16 = 1999;
   if( rr_s16 > 1999 ) rr_s16 = 1999;
   // Final adjust
-  if( 0 == Veh_s.channelThr_s.outp_s.out_perml_s16 )
+  if( 0 == DevInp_s.channelThr_s.outp_s.out_perml_s16 )
   {
     // Overwrite hard zero for zero throttle
     fl_s16 = 0;

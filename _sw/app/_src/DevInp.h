@@ -14,6 +14,9 @@
 #include "nrf24l01.h"
 #include "mpu6000.h"
 #include "et6i.h"
+#include "maf.h"
+#include "rotMatrix.h"
+#include "channel.h"
 
 /******************* Defines ********************/
 
@@ -25,22 +28,36 @@ typedef struct DevInp_outp_s
   uint8_t flgCon_u8;   // Remote control connected
   uint8_t flgLost_u8;  // Signal lost
 
-  // Remote Control Axis Data [us]
-  uint16_t yaw_us_u16;
-  uint16_t pit_us_u16;
-  uint16_t rol_us_u16;
-  uint16_t thr_us_u16;
+  // Remote Control Axis Data [‰]
+  int16_t yaw_perml_s16;
+  int16_t pit_perml_s16;
+  int16_t rol_perml_s16;
+  int16_t thr_perml_s16;
 
-  // Rate of rotation [�/s]
-  int16_t yaw_degps_s16;
-  int16_t pit_degps_s16;
-  int16_t rol_degps_s16;
+  // Rate of rotation [0.1 °/s]
+  int16_t yaw_p1degps_s16;
+  int16_t pit_p1degps_s16;
+  int16_t rol_p1degps_s16;
 
 }DevInp_outp_ts;
 
 typedef struct DevInp_s
 {
   DevInp_outp_ts outp_s;
+
+  // Moving average instances
+  maf_ts mafZ_s;
+  maf_ts mafX_s;
+  maf_ts mafY_s;
+
+  // Rotation matrix instance
+  rotMatrix_ts rotMatrix_s;
+
+  // Channel instances
+  channel_ts channelYaw_s;
+  channel_ts channelPit_s;
+  channel_ts channelRol_s;
+  channel_ts channelThr_s;
 
 }DevInp_ts;
 

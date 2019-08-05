@@ -17,7 +17,7 @@
 
 typedef struct channel_inp_s
 {
-  uint16_t in_us_u16; // Channel PWM width [µs]
+  uint16_t in_us_u16; // Channel PWM width [Âµs]
 
 }channel_inp_ts;
 
@@ -25,9 +25,9 @@ typedef struct channel_prm_s
 {
   uint8_t  flgPosOnly_u8;      // Positive output only
   uint8_t  flgReverse_u8;      // Reverse direction
-  uint16_t lo_us_u16;          // min. input value [µs]
-  uint16_t hi_us_u16;          // max. input value [µs]
-  uint16_t deadBand_perml_u16; // Deadband around zero value [0.1 %]
+  uint16_t lo_us_u16;          // min. input value [Âµs]
+  uint16_t hi_us_u16;          // max. input value [Âµs]
+  uint16_t deadBand_perml_u16; // Deadband around zero value [â€°]
 
 }channel_prm_ts;
 
@@ -38,7 +38,7 @@ typedef struct channel_prv_s
 
 typedef struct channel_outp_s
 {
-  int16_t out_perml_s16; // Channel value [0.1 %]
+  int16_t out_perml_s16; // Channel value [â€°]
 
 }channel_outp_ts;
 

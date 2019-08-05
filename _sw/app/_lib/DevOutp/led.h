@@ -31,7 +31,7 @@ typedef struct led_inp_s
 
 typedef struct led_prm_s
 {
-  uint16_t tiCyc_us_u16;       // Loop/cycle time [us]
+  uint16_t tiCyc_us_u16;       // Loop/cycle time [µs]
   uint16_t tiBlinkFast_ms_u16; // Blink fast period [ms]
   uint16_t tiBlinkSlow_ms_u16; // Blink slow period [ms]
 

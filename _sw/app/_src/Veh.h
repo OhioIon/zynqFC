@@ -16,11 +16,18 @@
 #include "expo.h"
 #include "rateDes.h"
 #include "pid.h"
-#include "rotMatrix.h"
 
 /******************* Defines ********************/
 
 /******************** Types *********************/
+
+typedef struct Veh_prv_s
+{
+  uint8_t flgArmOld_u8;   // Previous arm flag
+  uint8_t flgPidInteg_u8; // Release integral PID parts
+
+}Veh_prv_ts;
+
 
 typedef struct Veh_outp_s
 {
@@ -37,16 +44,8 @@ typedef struct Veh_outp_s
 
 typedef struct Veh_s
 {
+  Veh_prv_ts  prv_s;
   Veh_outp_ts outp_s;
-
-  // Channel instances
-  channel_ts channelYaw_s;
-  channel_ts channelPit_s;
-  channel_ts channelRol_s;
-  channel_ts channelThr_s;
-
-  // Rotation matrix instance
-  rotMatrix_ts rotMatrix_s;
 
   // Arm instance
   arm_ts arm_s;

@@ -14,7 +14,7 @@
 #define REG_PWR_MGMT_1 0x6B // Register - PWR_MGMT_1    - Power Management 1
 #define REG_WHO_AM_I   0x75 // Register - WHO_AM_I      - Device Identification
 
-#define EARTH_G 9.81274     // Gravitational acceleration constant g [m/s²]
+#define EARTH_G 9.81274     // Gravitational acceleration constant g [m/sÂ²]
 
 /******************** Types *********************/
 
@@ -68,9 +68,9 @@ uint8_t mpu6000_init( void )
   // Wake-up device - SLEEP = 0
   mpu6000_spiWriteReg( REG_PWR_MGMT_1, 0x01 );
 
-  // Configure to 250 °/s gyro resolution
+  // Configure to 250 Â°/s gyro resolution
   mpu6000_spiWriteReg( REG_GYRO_CFG, 0x00 );
-  mpu6000_s.prv_s.currRate_degps_s16 = 250;
+  mpu6000_s.prv_s.currRate_p1degps_s16 = 2500;
 
   // Done
   return 0;
@@ -84,47 +84,47 @@ void mpu6000( void )
   // Get sensor raw data
   mpu6000_readSensorRaw( &raw_s );
 
-  // Convert RAW acceleration measurement to physical [cm/s²]
+  // Convert RAW acceleration measurement to physical [cm/sÂ²]
   mpu6000_s.outp_s.accX_cmps2_s16 = (int16_t)((double)raw_s.accX_s16 / 327.670 * 2.0 * EARTH_G);
   mpu6000_s.outp_s.accY_cmps2_s16 = (int16_t)((double)raw_s.accY_s16 / 327.670 * 2.0 * EARTH_G);
   mpu6000_s.outp_s.accZ_cmps2_s16 = (int16_t)((double)raw_s.accZ_s16 / 327.670 * 2.0 * EARTH_G);
 
-  // Convert RAW rotation measurement to physical [°/s]
-  mpu6000_s.outp_s.rotX_degps_s16 = (int16_t)((double)raw_s.rotX_s16 * mpu6000_s.prv_s.currRate_degps_s16 / 32767.0);
-  mpu6000_s.outp_s.rotY_degps_s16 = (int16_t)((double)raw_s.rotY_s16 * mpu6000_s.prv_s.currRate_degps_s16 / 32767.0);
-  mpu6000_s.outp_s.rotZ_degps_s16 = (int16_t)((double)raw_s.rotZ_s16 * mpu6000_s.prv_s.currRate_degps_s16 / 32767.0);
+  // Convert RAW rotation measurement to physical [0.1 Â°/s]
+  mpu6000_s.outp_s.rotX_p1degps_s16 = (int16_t)((double)raw_s.rotX_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
+  mpu6000_s.outp_s.rotY_p1degps_s16 = (int16_t)((double)raw_s.rotY_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
+  mpu6000_s.outp_s.rotZ_p1degps_s16 = (int16_t)((double)raw_s.rotZ_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
 
-  // Convert RAW temperature measurement to physical [°C]
-  mpu6000_s.outp_s.temp_Cgrd_s16 = (int16_t)((double)raw_s.temp_s16 / 340.0 + 36.53);
+  // Convert RAW temperature measurement to physical [0.1 Â°C]
+  mpu6000_s.outp_s.temp_p1Cgrd_s16 = (int16_t)((double)raw_s.temp_s16 / 34.00 + 365.3);
 
   // Decrease gyro resolution at 80 % and increase gyro resolution at 20 % of current rate range
-  int16_t hiBound_degps_s16 = mpu6000_s.prv_s.currRate_degps_s16 * 0.8;
-  int16_t loBound_degps_s16 = mpu6000_s.prv_s.currRate_degps_s16 * 0.2;
-  if( (mpu6000_s.outp_s.rotX_degps_s16 >=  hiBound_degps_s16) ||
-      (mpu6000_s.outp_s.rotX_degps_s16 <= -hiBound_degps_s16) ||
-      (mpu6000_s.outp_s.rotY_degps_s16 >=  hiBound_degps_s16) ||
-      (mpu6000_s.outp_s.rotY_degps_s16 <= -hiBound_degps_s16) ||
-      (mpu6000_s.outp_s.rotZ_degps_s16 >=  hiBound_degps_s16) ||
-      (mpu6000_s.outp_s.rotZ_degps_s16 <= -hiBound_degps_s16) )
+  int16_t hiBound_degps_s16 = mpu6000_s.prv_s.currRate_p1degps_s16 * 0.8;
+  int16_t loBound_degps_s16 = mpu6000_s.prv_s.currRate_p1degps_s16 * 0.2;
+  if( (mpu6000_s.outp_s.rotX_p1degps_s16 >=  hiBound_degps_s16) ||
+      (mpu6000_s.outp_s.rotX_p1degps_s16 <= -hiBound_degps_s16) ||
+      (mpu6000_s.outp_s.rotY_p1degps_s16 >=  hiBound_degps_s16) ||
+      (mpu6000_s.outp_s.rotY_p1degps_s16 <= -hiBound_degps_s16) ||
+      (mpu6000_s.outp_s.rotZ_p1degps_s16 >=  hiBound_degps_s16) ||
+      (mpu6000_s.outp_s.rotZ_p1degps_s16 <= -hiBound_degps_s16) )
   {
-    switch( mpu6000_s.prv_s.currRate_degps_s16 )
+    switch( mpu6000_s.prv_s.currRate_p1degps_s16 )
     {
     case 250:
-      // Configure to 500 °/s resolution
+      // Configure to 500 Â°/s resolution
       mpu6000_spiWriteReg( REG_GYRO_CFG, 0x08 );
-      mpu6000_s.prv_s.currRate_degps_s16 = 500;
+      mpu6000_s.prv_s.currRate_p1degps_s16 = 5000;
       break;
 
     case 500:
-      // Configure to 1000 °/s resolution
+      // Configure to 1000 Â°/s resolution
       mpu6000_spiWriteReg( REG_GYRO_CFG, 0x10 );
-      mpu6000_s.prv_s.currRate_degps_s16 = 1000;
+      mpu6000_s.prv_s.currRate_p1degps_s16 = 10000;
       break;
 
     case 1000:
-      // Configure to 2000 °/s resolution
+      // Configure to 2000 Â°/s resolution
       mpu6000_spiWriteReg( REG_GYRO_CFG, 0x18 );
-      mpu6000_s.prv_s.currRate_degps_s16 = 2000;
+      mpu6000_s.prv_s.currRate_p1degps_s16 = 20000;
       break;
 
     default:
@@ -132,31 +132,31 @@ void mpu6000( void )
       break;
     }
   }
-  else if( (mpu6000_s.outp_s.rotX_degps_s16 <=  loBound_degps_s16) &&
-           (mpu6000_s.outp_s.rotX_degps_s16 >= -loBound_degps_s16) &&
-           (mpu6000_s.outp_s.rotY_degps_s16 <=  loBound_degps_s16) &&
-           (mpu6000_s.outp_s.rotY_degps_s16 >= -loBound_degps_s16) &&
-           (mpu6000_s.outp_s.rotZ_degps_s16 <=  loBound_degps_s16) &&
-           (mpu6000_s.outp_s.rotZ_degps_s16 >= -loBound_degps_s16) )
+  else if( (mpu6000_s.outp_s.rotX_p1degps_s16 <=  loBound_degps_s16) &&
+           (mpu6000_s.outp_s.rotX_p1degps_s16 >= -loBound_degps_s16) &&
+           (mpu6000_s.outp_s.rotY_p1degps_s16 <=  loBound_degps_s16) &&
+           (mpu6000_s.outp_s.rotY_p1degps_s16 >= -loBound_degps_s16) &&
+           (mpu6000_s.outp_s.rotZ_p1degps_s16 <=  loBound_degps_s16) &&
+           (mpu6000_s.outp_s.rotZ_p1degps_s16 >= -loBound_degps_s16) )
   {
-    switch( mpu6000_s.prv_s.currRate_degps_s16 )
+    switch( mpu6000_s.prv_s.currRate_p1degps_s16 )
     {
     case 2000:
-      // Configure to 1000 °/s resolution
+      // Configure to 1000 Â°/s resolution
       mpu6000_spiWriteReg( REG_GYRO_CFG, 0x10 );
-      mpu6000_s.prv_s.currRate_degps_s16 = 1000;
+      mpu6000_s.prv_s.currRate_p1degps_s16 = 10000;
       break;
 
     case 1000:
-      // Configure to 500 °/s resolution
+      // Configure to 500 Â°/s resolution
       mpu6000_spiWriteReg( REG_GYRO_CFG, 0x08 );
-      mpu6000_s.prv_s.currRate_degps_s16 = 500;
+      mpu6000_s.prv_s.currRate_p1degps_s16 = 5000;
       break;
 
     case 500:
-      // Configure to 250 °/s resolution
+      // Configure to 250 Â°/s resolution
       mpu6000_spiWriteReg( REG_GYRO_CFG, 0x00 );
-      mpu6000_s.prv_s.currRate_degps_s16 = 250;
+      mpu6000_s.prv_s.currRate_p1degps_s16 = 2500;
       break;
 
     default:

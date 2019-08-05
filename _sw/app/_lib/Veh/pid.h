@@ -17,36 +17,39 @@
 
 typedef struct pid_inp_s
 {
-  int16_t sp_degps_s16;  // Set-point rotation [°/s]
-  int16_t act_degps_s16; // Actual rotation [°/s]
+  int16_t sp_p1degps_s16;  // Set-point rotation [0.1 Â°/s]
+  int16_t act_p1degps_s16; // Actual rotation [0.1 Â°/s]
 
-  uint8_t flgClrIntg_u8; // Clear integration part [bool]
+  uint8_t flgClrIntg_u8;   // Clear integral part [bool]
 
 }pid_inp_ts;
 
 typedef struct pid_prm_s
 {
-  uint16_t kp_perml_u16; // Proportional factor [0.1 %]
-  uint16_t ki_perml_u16; // Integral factor [0.1 %]
-  uint16_t kd_perml_u16; // Differential factor [0.1 %]
+  uint16_t kp_perml_u16; // Proportional factor [â€°]
+  uint16_t ki_perml_u16; // Integral factor [â€°]
+  uint16_t kd_perml_u16; // Differential factor [â€°]
+
+  uint16_t tiCyc_us_u16; // Loop/cycle time [Âµs]
 
 }pid_prm_ts;
 
 typedef struct pid_prv_s
 {
-  int16_t e_degps_s16; // Error signal [°/s]
+  int32_t e_p1degps_s32;     // Error signal [0.1 Â°/s]
+  int32_t ePrev_p1degps_s32; // Previous error signal [0.1 Â°/s]
 
-  int16_t p_degps_s16; // Proportional part [°/s]
-  int16_t i_degps_s16; // Integration part [°/s]
-  int16_t d_degps_s16; // Differential part [°/s]
+  int32_t i_p1degps_s32;     // Integration part [0.1 Â°/s]
+  int32_t d_p1degps_s32;     // Differential part [0.1 Â°/s]
+  int32_t sum_p1degps_s32;   // Weighted sum of all parts [0.1 Â°/s]
 
-  int16_t ePrev_degps_s16; // Previous error signal [°/s]
+  double dt_s_lf;            // Delta time [s]
 
 }pid_prv_ts;
 
 typedef struct pid_outp_s
 {
-  int16_t out_degps_s16; // Rotation actuation [°/s]
+  int16_t out_p1degps_s16; // Rotation actuation [0.1 Â°/s]
 
 }pid_outp_ts;
 
