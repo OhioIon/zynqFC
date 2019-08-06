@@ -38,7 +38,8 @@ entity toplevel is
     iic_eeprom_sda : inout STD_LOGIC;
     -- IMU IIC
     iic_imu_scl : inout STD_LOGIC;
-    iic_imu_sda : inout STD_LOGIC
+    iic_imu_sda : inout STD_LOGIC;
+    iic_imu_int : inout STD_LOGIC
   );
 end toplevel;
 
@@ -69,6 +70,10 @@ architecture STRUCTURE of toplevel is
     FIXED_IO_ps_srstb : inout STD_LOGIC;
     FIXED_IO_ps_clk : inout STD_LOGIC;
     FIXED_IO_ps_porb : inout STD_LOGIC;
+    -- PS GPIO EMIO
+    GPIO_EMIO_tri_i : in STD_LOGIC_VECTOR ( 63 downto 0 );
+    GPIO_EMIO_tri_o : out STD_LOGIC_VECTOR ( 63 downto 0 );
+    GPIO_EMIO_tri_t : out STD_LOGIC_VECTOR ( 63 downto 0 );
     -- DShot (motors/ESCs)
     dshot_0 : out STD_LOGIC;
     dshot_1 : out STD_LOGIC;
@@ -100,6 +105,10 @@ architecture STRUCTURE of toplevel is
   );
   end component IOBUF;
   
+  -- GPIO EMIO
+  signal gpio_emio_i : STD_LOGIC_VECTOR ( 117 downto 54 );
+  signal gpio_emio_o : STD_LOGIC_VECTOR ( 117 downto 54 );
+  signal gpio_emio_t : STD_LOGIC_VECTOR ( 117 downto 54 );
     
   -- EEPROM IIC
   signal iic_eeprom_scl_i : STD_LOGIC;
@@ -147,6 +156,10 @@ port map (
   FIXED_IO_ps_clk => FIXED_IO_ps_clk,
   FIXED_IO_ps_porb => FIXED_IO_ps_porb,
   FIXED_IO_ps_srstb => FIXED_IO_ps_srstb,
+  -- GPIO EMIO
+  GPIO_EMIO_tri_i => gpio_emio_i,
+  GPIO_EMIO_tri_o => gpio_emio_o,
+  GPIO_EMIO_tri_t => gpio_emio_t,
   -- DShot
   dshot_0 => dshot_0,
   dshot_1 => dshot_1,
@@ -200,6 +213,14 @@ port map (
   IO => iic_imu_sda,
   O  => iic_imu_sda_i,
   T  => iic_imu_sda_t
+);
+
+iic_imu_int_iobuf: component IOBUF
+port map (
+  I  => gpio_emio_o(54),
+  IO => iic_imu_int,
+  O  => gpio_emio_i(54),
+  T  => gpio_emio_t(54)
 );
     
 end STRUCTURE;
