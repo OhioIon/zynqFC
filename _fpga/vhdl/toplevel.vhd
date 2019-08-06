@@ -34,12 +34,12 @@ entity toplevel is
     dshot_2  : out STD_LOGIC;
     dshot_3  : out STD_LOGIC;
     -- EEPROM IIC
-    iic_eeprom_scl : inout STD_LOGIC;
-    iic_eeprom_sda : inout STD_LOGIC;
+    eeprom_iic_scl : inout STD_LOGIC;
+    eeprom_iic_sda : inout STD_LOGIC;
     -- IMU IIC
-    iic_imu_scl : inout STD_LOGIC;
-    iic_imu_sda : inout STD_LOGIC;
-    iic_imu_int : inout STD_LOGIC
+    imu_iic_scl : inout STD_LOGIC;
+    imu_iic_sda : inout STD_LOGIC;
+    imu_int     : inout STD_LOGIC
   );
 end toplevel;
 
@@ -185,7 +185,7 @@ port map (
 iic_eeprom_scl_iobuf: component IOBUF
 port map (
   I  => iic_eeprom_scl_o,
-  IO => iic_eeprom_scl,
+  IO => eeprom_iic_scl,
   O  => iic_eeprom_scl_i,
   T  => iic_eeprom_scl_t
 );
@@ -193,7 +193,7 @@ port map (
 iic_eeprom_sda_iobuf: component IOBUF
 port map (
   I  => iic_eeprom_sda_o,
-  IO => iic_eeprom_sda,
+  IO => eeprom_iic_sda,
   O  => iic_eeprom_sda_i,
   T  => iic_eeprom_sda_t
 );
@@ -202,7 +202,7 @@ port map (
 iic_imu_scl_iobuf: component IOBUF
 port map (
   I  => iic_imu_scl_o,
-  IO => iic_imu_scl,
+  IO => imu_iic_scl,
   O  => iic_imu_scl_i,
   T  => iic_imu_scl_t
 );
@@ -210,7 +210,7 @@ port map (
 iic_imu_sda_iobuf: component IOBUF
 port map (
   I  => iic_imu_sda_o,
-  IO => iic_imu_sda,
+  IO => imu_iic_sda,
   O  => iic_imu_sda_i,
   T  => iic_imu_sda_t
 );
@@ -218,9 +218,11 @@ port map (
 iic_imu_int_iobuf: component IOBUF
 port map (
   I  => gpio_emio_o(54),
-  IO => iic_imu_int,
+  IO => imu_int,
   O  => gpio_emio_i(54),
   T  => gpio_emio_t(54)
 );
     
 end STRUCTURE;
+
+-- EOF
