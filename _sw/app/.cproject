@@ -35,6 +35,7 @@
 									<listOptionValue builtIn="false" value="&quot;../_lib\DevInp&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../_lib\DevOutp&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;../_lib\Veh&quot;"/>
+									<listOptionValue builtIn="false" value="../_src"/>
 								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.1218403246" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>
@@ -111,6 +112,7 @@
 									<listOptionValue builtIn="false" value="../_lib/DevInp"/>
 									<listOptionValue builtIn="false" value="../_lib/DevOutp"/>
 									<listOptionValue builtIn="false" value="../_lib/Veh"/>
+									<listOptionValue builtIn="false" value="../_src"/>
 								</option>
 								<inputType id="xilinx.gnu.armv7.c.compiler.input.460233969" name="C source files" superClass="xilinx.gnu.armv7.c.compiler.input"/>
 							</tool>
