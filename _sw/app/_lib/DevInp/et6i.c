@@ -123,15 +123,16 @@ void et6i( void )
         et6i_s.prv_s.st_e = et6i_stMacBindingAbort_E;
 
         // Debug info
-        printf("Abort... wrong repetition\n");
-        printf("Addr %02X:%02X:%02X != %02X:%02X:%02X\n",
+        printf("Abort... wrong binding repetition detected\n");
+        printf("Addr/Info %02X:%02X:%02X:%02X != %02X:%02X:%02X:%02X\n",
            et6i_s.prv_s.addr_au8[0],
            et6i_s.prv_s.addr_au8[1],
            et6i_s.prv_s.addr_au8[2],
+           et6i_s.prv_s.addr_au8[3],
            dat_au8[0],
            dat_au8[1],
-           dat_au8[2] );
-        printf("Channel %02X != %02X\n", et6i_s.prv_s.bandInfo_u8, dat_au8[3] );
+           dat_au8[2],
+           dat_au8[3] );
       }
       else
       {
