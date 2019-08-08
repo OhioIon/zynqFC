@@ -7,6 +7,7 @@
 #include <xparameters.h>
 #include <xscugic.h>
 
+#include "spi.h"
 #include "iic.h"
 #include "timer.h"
 
@@ -43,6 +44,11 @@ uint8_t intr_init( void )
 
     // Register interrupt controller interrupt handler to hardware IRQ
     Xil_ExceptionRegisterHandler( XIL_EXCEPTION_ID_IRQ_INT, (Xil_ExceptionHandler)XScuGic_InterruptHandler, &XScuGic_s );
+
+    // Register/enable XSpiPs interrupt handler for XSPIPS_1 interrupts (nRF24L01)
+    retVal_s16 = XScuGic_Connect( &XScuGic_s, XPAR_XSPIPS_1_INTR, (Xil_ExceptionHandler)XSpiPs_InterruptHandler, &nrf24l01Spi_s );
+    if( XST_SUCCESS != retVal_s16 ) return 1;
+    XScuGic_Enable( &XScuGic_s, XPAR_XSPIPS_1_INTR );
 
     // Register/enable XIic interrupt handler for XIIC_1 interrupts (MPU6000)
     retVal_s16 = XScuGic_Connect( &XScuGic_s, XPAR_XIICPS_0_INTR, (XInterruptHandler)XIicPs_MasterInterruptHandler, &mpu6000Iic_s );

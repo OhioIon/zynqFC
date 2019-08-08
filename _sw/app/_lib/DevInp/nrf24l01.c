@@ -5,6 +5,8 @@
 #include "nrf24l01.h"
 
 #include <string.h>
+#include <stdbool.h>
+
 #include <sleep.h>
 
 /******************* Defines ********************/
@@ -21,7 +23,8 @@
 #define RX_PW_P0    0x11 // Number of bytes in RX payload in data pipe 0
 #define FIFO_STATUS 0x17 // FIFO status register
 
-#define WRITE      0x20
+#define WRITE      0x20 // Write command bit
+#define RX_DR      0x40 // RX data ready status bit
 
 /******************** Types *********************/
 
@@ -31,7 +34,9 @@
 
 // HAL
 extern void spi_nrf24l01_transferData( uint8_t * bufOut_au8, uint8_t *bufIn_au8, uint8_t ByteCnt_u8 ); // Transfer data via SPI
+extern bool spi_nrf24l01_busy( void );                                                                 // Transfer busy
 extern void gpio_nRF24L01_CE( uint8_t val ); // Set Chip-Enable GPIO state
+extern bool gpio_nRF24L01_IRQ( void );       // Get IRQ GPIO state
 
 // Register Access (polled)
 static uint8_t nrf24l01_readReg ( uint8_t addr_u8 );
@@ -166,6 +171,7 @@ void nrf24l01_setAddr( uint8_t byte_u8, uint64_t addr_u64 )
 
     // Transfer data (polled)
     spi_nrf24l01_transferData( buf_au8, buf_au8, byte_u8 + 1 );
+    while( spi_nrf24l01_busy() );
   }
 }
 
@@ -227,6 +233,7 @@ uint8_t nrf24l01_getRxData( uint8_t *buf_au8, uint8_t byteCnt_u8 )
 
     // Transfer data (polled)
     spi_nrf24l01_transferData( bufTmp_au8, bufTmp_au8, byteCnt_u8 + 1 );
+    while( spi_nrf24l01_busy() );
 
     // Copy data to output buffer
     memcpy( buf_au8, &bufTmp_au8[1], byteCnt_u8 );
@@ -248,6 +255,7 @@ void nrf24l01_flushRxData( void )
 
   buf_au8[0] = 0xE2; // Flush RX FIFO command
   spi_nrf24l01_transferData( buf_au8, buf_au8, 1 );
+  while( spi_nrf24l01_busy() );
 }
 
 // Read register of nRF24L01 (polled)
@@ -261,6 +269,7 @@ static uint8_t nrf24l01_readReg( uint8_t addr_u8 )
 
   // Transfer data (polled)
   spi_nrf24l01_transferData( buf_au8, buf_au8, 2 );
+  while( spi_nrf24l01_busy() );
 
   // Return data
   return buf_au8[1];
@@ -278,6 +287,7 @@ static void nrf24l01_writeReg( uint8_t addr_u8, uint8_t data_u8 )
 
   // Transfer data (polled)
   spi_nrf24l01_transferData( buf_au8, buf_au8, 2 );
+  while( spi_nrf24l01_busy() );
 }
 
 // EOF

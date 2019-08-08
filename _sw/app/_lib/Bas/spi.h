@@ -10,6 +10,7 @@
 /****************** Includes ********************/
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <xspips.h>
 
@@ -26,7 +27,6 @@ SPI_SCOPE XSpiPs nrf24l01Spi_s;
 SPI_SCOPE uint8_t spi_init( void );
 
 SPI_SCOPE void spi_nrf24l01_transferData( uint8_t * bufOut_pu8, uint8_t *bufIn_pu8, uint8_t ByteCnt_u8 );
+SPI_SCOPE bool spi_nrf24l01_busy( void );
 
 #endif // SPI_H
-
-// EOF

@@ -12,7 +12,11 @@
 
 /***************** Private Data *****************/
 
+static bool flgNrf24l01Busy_l;
+
 /****************** Prototypes ******************/
+
+static void spi_nrf24l01_intr(void *CallBackRef, u32 StatusEvent, u32 ByteCount);
 
 /**************** Implementation ****************/
 
@@ -43,16 +47,35 @@ uint8_t spi_init( void )
 
     // Choose slave-select output
     XSpiPs_SetSlaveSelect( &nrf24l01Spi_s, 0 );
+
+    // Register interrupt status handler callback
+    XSpiPs_SetStatusHandler( &nrf24l01Spi_s, &nrf24l01Spi_s, spi_nrf24l01_intr );
   }
 
   // Done
   return 0;
 }
 
-// nRF24L01 SPI wrapper to transfer data (polled)
+// nRF24L01 SPI wrapper to transfer data (interrupt)
 void spi_nrf24l01_transferData( uint8_t * bufOut_au8, uint8_t *bufIn_au8, uint8_t ByteCnt_u8 )
 {
-  XSpiPs_PolledTransfer( &nrf24l01Spi_s, bufOut_au8, bufIn_au8, ByteCnt_u8 );
+  flgNrf24l01Busy_l = 1;
+  XSpiPs_Transfer( &nrf24l01Spi_s, bufOut_au8, bufIn_au8, ByteCnt_u8 );
+}
+
+// Indicates true if transfer is still in progress (use for polled mode)
+bool spi_nrf24l01_busy( void )
+{
+  return flgNrf24l01Busy_l;
+}
+
+// Interrupt status handler callback for nRF24L01
+void spi_nrf24l01_intr(void *CallBackRef, u32 StatusEvent, u32 ByteCount)
+{
+  if( StatusEvent == XST_SPI_TRANSFER_DONE )
+  {
+    flgNrf24l01Busy_l = 0;
+  }
 }
 
 // EOF
