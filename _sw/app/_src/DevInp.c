@@ -26,6 +26,9 @@ uint8_t DevInp_init( void )
 {
   uint8_t retVal_u8 = 0;
 
+  // Init outputs
+  memset( &DevInp_s.outp_s, 0, sizeof(DevInp_s.outp_s) );
+
   // Init MPU-6000 driver
   retVal_u8 += mpu6000_init();
 
@@ -92,6 +95,28 @@ void DevInp( void )
   // Get remote control input
   et6i();
 
+  // Convert control input value to physical [‰]
+  DevInp_s.channelYaw_s.inp_s.in_us_u16 = et6i_s.outp_s.ch4_us_u16;
+  DevInp_s.channelPit_s.inp_s.in_us_u16 = et6i_s.outp_s.ch2_us_u16;
+  DevInp_s.channelRol_s.inp_s.in_us_u16 = et6i_s.outp_s.ch1_us_u16;
+  DevInp_s.channelThr_s.inp_s.in_us_u16 = et6i_s.outp_s.ch3_us_u16;
+  channel( &DevInp_s.channelYaw_s );
+  channel( &DevInp_s.channelPit_s );
+  channel( &DevInp_s.channelRol_s );
+  channel( &DevInp_s.channelThr_s );
+  // TODO: improve channel by using mid calibration point
+  // TODO: improve channel so output of 100 % on all channels is possible (remove some us from parameter)
+
+  // Check for start condition (arm + none-zero throttle)
+  if( (DevInp_s.outp_s.flgStart_u8                == 0) &&
+      (Veh_s.arm_s.outp_s.flgArmed_u8             != 0) &&
+      (DevInp_s.channelThr_s.outp_s.out_perml_s16 != 0) )
+  {
+    // PID integral part may start. MAF filter for IMU are frozen.
+    DevInp_s.outp_s.flgStart_u8 = 1;
+    printf( "!!! START !!!\n" );
+  }
+
   // DEBUG
   static uint8_t toOld_u8;
   if( (toOld_u8 == 0) && (et6i_s.outp_s.flgLost_u8 != 0) )
@@ -107,13 +132,13 @@ void DevInp( void )
   // Get IMU data
   mpu6000();
 
-  // Calibrate IMU output (average of last 64 values once drone is armed)
+  // Calibrate IMU output (average of last 64 values. Freeze on start condition)
   DevInp_s.mafZ_s.inp_s.x_s16 = mpu6000_s.outp_s.rotZ_p1degps_s16;
   DevInp_s.mafX_s.inp_s.x_s16 = mpu6000_s.outp_s.rotX_p1degps_s16;
   DevInp_s.mafY_s.inp_s.x_s16 = mpu6000_s.outp_s.rotY_p1degps_s16;
-  DevInp_s.mafZ_s.inp_s.flgEna_u8 = !Veh_s.outp_s.flgArmed_u8;
-  DevInp_s.mafX_s.inp_s.flgEna_u8 = !Veh_s.outp_s.flgArmed_u8;
-  DevInp_s.mafY_s.inp_s.flgEna_u8 = !Veh_s.outp_s.flgArmed_u8;
+  DevInp_s.mafZ_s.inp_s.flgEna_u8 = !DevInp_s.outp_s.flgStart_u8;
+  DevInp_s.mafX_s.inp_s.flgEna_u8 = !DevInp_s.outp_s.flgStart_u8;
+  DevInp_s.mafY_s.inp_s.flgEna_u8 = !DevInp_s.outp_s.flgStart_u8;
   maf( &DevInp_s.mafZ_s );
   maf( &DevInp_s.mafX_s );
   maf( &DevInp_s.mafY_s );
@@ -123,18 +148,6 @@ void DevInp( void )
   DevInp_s.rotMatrix_s.inp_s.pit_s16 = -(mpu6000_s.outp_s.rotX_p1degps_s16 - DevInp_s.mafX_s.outp_s.y_s16);
   DevInp_s.rotMatrix_s.inp_s.rol_s16 =  (mpu6000_s.outp_s.rotY_p1degps_s16 - DevInp_s.mafY_s.outp_s.y_s16);
   rotMatrix( &DevInp_s.rotMatrix_s );
-
-  // Convert control input value to physical [‰]
-  DevInp_s.channelYaw_s.inp_s.in_us_u16 = et6i_s.outp_s.ch4_us_u16;
-  DevInp_s.channelPit_s.inp_s.in_us_u16 = et6i_s.outp_s.ch2_us_u16;
-  DevInp_s.channelRol_s.inp_s.in_us_u16 = et6i_s.outp_s.ch1_us_u16;
-  DevInp_s.channelThr_s.inp_s.in_us_u16 = et6i_s.outp_s.ch3_us_u16;
-  channel( &DevInp_s.channelYaw_s );
-  channel( &DevInp_s.channelPit_s );
-  channel( &DevInp_s.channelRol_s );
-  channel( &DevInp_s.channelThr_s );
-  // TODO: improve channel by using mid calibration point
-  // TODO: improve channel so output of 100 % on all channels is possible (remove some us from parameter)
 
   // Output signals to vehicle layer
   DevInp_s.outp_s.flgCon_u8  = et6i_s.outp_s.flgCon_u8;
@@ -148,7 +161,6 @@ void DevInp( void )
   DevInp_s.outp_s.yaw_p1degps_s16 = DevInp_s.rotMatrix_s.outp_s.yaw_s16;
   DevInp_s.outp_s.pit_p1degps_s16 = DevInp_s.rotMatrix_s.outp_s.pit_s16;
   DevInp_s.outp_s.rol_p1degps_s16 = DevInp_s.rotMatrix_s.outp_s.rol_s16;
-
 }
 
 // EOF

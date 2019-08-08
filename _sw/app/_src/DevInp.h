@@ -27,6 +27,7 @@ typedef struct DevInp_outp_s
   // Remote Control Status
   uint8_t flgCon_u8;   // Remote control connected
   uint8_t flgLost_u8;  // Signal lost
+  uint8_t flgStart_u8; // Start condition detected
 
   // Remote Control Axis Data [‰]
   int16_t yaw_perml_s16;

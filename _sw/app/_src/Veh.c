@@ -93,16 +93,6 @@ void Veh( void )
   Veh_s.arm_s.inp_s.thr_perml_s16 = DevInp_s.channelThr_s.outp_s.out_perml_s16;
   arm( &Veh_s.arm_s );
 
-  // Check for release integral part of PID condition
-  if( (Veh_s.prv_s.flgPidInteg_u8                 == 0) &&
-      (Veh_s.arm_s.outp_s.flgArmed_u8             != 0) &&
-      (DevInp_s.channelThr_s.outp_s.out_perml_s16 != 0) )
-  {
-    // PID integral part may start
-    Veh_s.prv_s.flgPidInteg_u8 = 1;
-    printf( "!!! START !!!\n" );
-  }
-
   // DEBUG
   if( (Veh_s.prv_s.flgArmOld_u8 == 0) && (Veh_s.arm_s.outp_s.flgArmed_u8 != 0) )
   {
@@ -133,9 +123,9 @@ void Veh( void )
   Veh_s.pidYaw_s.inp_s.act_p1degps_s16 = DevInp_s.outp_s.yaw_p1degps_s16;
   Veh_s.pidPit_s.inp_s.act_p1degps_s16 = DevInp_s.outp_s.pit_p1degps_s16;
   Veh_s.pidRol_s.inp_s.act_p1degps_s16 = DevInp_s.outp_s.rol_p1degps_s16;
-  Veh_s.pidYaw_s.inp_s.flgClrIntg_u8   = !Veh_s.prv_s.flgPidInteg_u8;
-  Veh_s.pidPit_s.inp_s.flgClrIntg_u8   = !Veh_s.prv_s.flgPidInteg_u8;
-  Veh_s.pidRol_s.inp_s.flgClrIntg_u8   = !Veh_s.prv_s.flgPidInteg_u8;
+  Veh_s.pidYaw_s.inp_s.flgClrIntg_u8   = !DevInp_s.outp_s.flgStart_u8;
+  Veh_s.pidPit_s.inp_s.flgClrIntg_u8   = !DevInp_s.outp_s.flgStart_u8;
+  Veh_s.pidRol_s.inp_s.flgClrIntg_u8   = !DevInp_s.outp_s.flgStart_u8;
   pid( &Veh_s.pidYaw_s );
   pid( &Veh_s.pidPit_s );
   pid( &Veh_s.pidRol_s );

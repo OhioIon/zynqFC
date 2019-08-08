@@ -24,7 +24,6 @@
 typedef struct Veh_prv_s
 {
   uint8_t flgArmOld_u8;   // Previous arm flag
-  uint8_t flgPidInteg_u8; // Release integral PID parts
 
 }Veh_prv_ts;
 
