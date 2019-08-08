@@ -29,11 +29,13 @@
 
 /****************** Prototypes ******************/
 
-extern void spi_nrf24l01_transferData( uint8_t * bufOut_au8, uint8_t *bufIn_au8, uint8_t ByteCnt_u8 );
-extern void gpio_nRF24L01_CE( uint8_t val );
+// HAL
+extern void spi_nrf24l01_transferData( uint8_t * bufOut_au8, uint8_t *bufIn_au8, uint8_t ByteCnt_u8 ); // Transfer data via SPI
+extern void gpio_nRF24L01_CE( uint8_t val ); // Set Chip-Enable GPIO state
 
-static uint8_t nrf24l01_spiReadReg( uint8_t addr_u8 );
-static void nrf24l01_spiWriteReg( uint8_t addr_u8, uint8_t data_u8 );
+// Register Access (polled)
+static uint8_t nrf24l01_readReg ( uint8_t addr_u8 );
+static void    nrf24l01_writeReg( uint8_t addr_u8, uint8_t data_u8 );
 
 /**************** Implementation ****************/
 
@@ -44,21 +46,21 @@ uint8_t nrf24l01_init( void )
 
   // Clear chip-enable
   gpio_nRF24L01_CE( 0 );
-  usleep( 10000 );
+  usleep( 20000 );
 
   // Check access to config register
-  reg_u8 = nrf24l01_spiReadReg( CONFIG );
+  reg_u8 = nrf24l01_readReg( CONFIG );
   if( reg_u8 == 0xFF )
   {
     return 1;
   }
 
-  // Power up device / primary RX function
-  reg_u8 |= 0x03;
-  nrf24l01_spiWriteReg( CONFIG, reg_u8 );
+  // Power up device / primary RX function / RX_DR interrupt
+  reg_u8 |= 0x33;
+  nrf24l01_writeReg( CONFIG, reg_u8 );
 
   // Wait power-up time
-  usleep( 10000 );
+  usleep( 20000 );
 
   // Flush RX FIFO to discard all old messages
   nrf24l01_flushRxData();
@@ -72,14 +74,14 @@ void nrf24l01_setChannel( uint8_t ch_u8 )
 {
   if( ch_u8 <= 127 )
   {
-    nrf24l01_spiWriteReg( RF_CH, ch_u8 );
+    nrf24l01_writeReg( RF_CH, ch_u8 );
   }
 }
 
 // Configure CRC field size
 void nrf24l01_setCrcSize( uint8_t byte_u8 )
 {
-  uint8_t reg_u8 = nrf24l01_spiReadReg( CONFIG );
+  uint8_t reg_u8 = nrf24l01_readReg( CONFIG );
   if( byte_u8 == 1 )
   {
     reg_u8 &= ~0x04;
@@ -88,13 +90,13 @@ void nrf24l01_setCrcSize( uint8_t byte_u8 )
   {
     reg_u8 |= 0x04;
   }
-  nrf24l01_spiWriteReg( CONFIG, reg_u8 );
+  nrf24l01_writeReg( CONFIG, reg_u8 );
 }
 
 // Enable/disable auto-acknowledge on data pipe 0
 void nrf24l01_setAutoAck( uint8_t flg_u8 )
 {
-  uint8_t reg_u8 = nrf24l01_spiReadReg( ENAA );
+  uint8_t reg_u8 = nrf24l01_readReg( ENAA );
   if( flg_u8 != 0 )
   {
     reg_u8 |= 0x01;
@@ -103,13 +105,13 @@ void nrf24l01_setAutoAck( uint8_t flg_u8 )
   {
     reg_u8 &= ~0x01;
   }
-  nrf24l01_spiWriteReg( ENAA, reg_u8 );
+  nrf24l01_writeReg( ENAA, reg_u8 );
 }
 
 // Set transmission data rate
 void nrf24l01_setDataRate( nrf24l01_dataRate_te rate_e )
 {
-  uint8_t reg_u8 = nrf24l01_spiReadReg( RF_SETUP );
+  uint8_t reg_u8 = nrf24l01_readReg( RF_SETUP );
   switch( rate_e )
   {
   case nrf24l01_dataRate250kbps_E:
@@ -129,7 +131,7 @@ void nrf24l01_setDataRate( nrf24l01_dataRate_te rate_e )
   default:
     break;
   }
-  nrf24l01_spiWriteReg( RF_SETUP, reg_u8 );
+  nrf24l01_writeReg( RF_SETUP, reg_u8 );
 }
 
 // Set number of payload bytes
@@ -137,7 +139,7 @@ void nrf24l01_setPayloadSize( uint8_t byte_u8 )
 {
   if( byte_u8 <= 32 )
   {
-    nrf24l01_spiWriteReg( RX_PW_P0, byte_u8 );
+    nrf24l01_writeReg( RX_PW_P0, byte_u8 );
   }
 }
 
@@ -149,10 +151,10 @@ void nrf24l01_setAddr( uint8_t byte_u8, uint64_t addr_u64 )
   if( (byte_u8 >= 3) && (byte_u8 <= 5) )
   {
     // Only enable RX address 0
-    nrf24l01_spiWriteReg( EN_RXADDR, 0x01 );
+    nrf24l01_writeReg( EN_RXADDR, 0x01 );
 
     // Configure address width
-    nrf24l01_spiWriteReg( SETUP_AW, byte_u8 - 2 );
+    nrf24l01_writeReg( SETUP_AW, byte_u8 - 2 );
 
     // Prepare payload
     buf_au8[0] = RX_ADDR_P0 | WRITE;      // Register Address + write command
@@ -165,8 +167,6 @@ void nrf24l01_setAddr( uint8_t byte_u8, uint64_t addr_u64 )
     // Transfer data (polled)
     spi_nrf24l01_transferData( buf_au8, buf_au8, byte_u8 + 1 );
   }
-
-
 }
 
 // Enable reception of data
@@ -184,7 +184,7 @@ void nrf24l01_disable( void )
 // Check for RX power detection
 uint8_t nrf24l01_getRxPowerDetect( void )
 {
-  uint8_t reg_u8 = nrf24l01_spiReadReg( RPD );
+  uint8_t reg_u8 = nrf24l01_readReg( RPD );
   return reg_u8 & 0x01;
 }
 
@@ -208,7 +208,7 @@ uint8_t nrf24l01_getRxData( uint8_t *buf_au8, uint8_t byteCnt_u8 )
   if( retVal_u8 == 0 )
   {
     // Read status register
-    reg_u8 = nrf24l01_spiReadReg( STATUS );
+    reg_u8 = nrf24l01_readReg( STATUS );
 
     // Check RX_DR bit (data ready)
     flgRxDr_u8 = reg_u8 & 0x40;
@@ -235,13 +235,13 @@ uint8_t nrf24l01_getRxData( uint8_t *buf_au8, uint8_t byteCnt_u8 )
     nrf24l01_flushRxData();
 
     // Clear RX_DR bit
-    nrf24l01_spiWriteReg( STATUS, flgRxDr_u8 );
+    nrf24l01_writeReg( STATUS, flgRxDr_u8 );
   }
 
   return retVal_u8;
 }
 
-// Flush RX FIFO
+// Flush RX FIFO (polled)
 void nrf24l01_flushRxData( void )
 {
   uint8_t buf_au8[1];
@@ -250,13 +250,14 @@ void nrf24l01_flushRxData( void )
   spi_nrf24l01_transferData( buf_au8, buf_au8, 1 );
 }
 
-// Read register of nRF24L01 via SPI
-static uint8_t nrf24l01_spiReadReg( uint8_t addr_u8 )
+// Read register of nRF24L01 (polled)
+static uint8_t nrf24l01_readReg( uint8_t addr_u8 )
 {
   uint8_t buf_au8[2];
 
   // Write 5-bit register address into buffer
   buf_au8[0] = addr_u8 & 0x1F;
+  buf_au8[1] = 0;
 
   // Transfer data (polled)
   spi_nrf24l01_transferData( buf_au8, buf_au8, 2 );
@@ -265,8 +266,8 @@ static uint8_t nrf24l01_spiReadReg( uint8_t addr_u8 )
   return buf_au8[1];
 }
 
-// Write register of nRF24L01 via SPI
-static void nrf24l01_spiWriteReg( uint8_t addr_u8, uint8_t data_u8 )
+// Write register of nRF24L01 (polled)
+static void nrf24l01_writeReg( uint8_t addr_u8, uint8_t data_u8 )
 {
   uint8_t buf_au8[2];
 
@@ -279,6 +280,4 @@ static void nrf24l01_spiWriteReg( uint8_t addr_u8, uint8_t data_u8 )
   spi_nrf24l01_transferData( buf_au8, buf_au8, 2 );
 }
 
-
 // EOF
-
