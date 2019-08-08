@@ -11,6 +11,8 @@
 
 #include <stdint.h>
 
+#include "nrf24l01.h"
+
 /******************* Defines ********************/
 
 /******************** Types *********************/
@@ -18,9 +20,11 @@
 typedef enum et6i_stMac_e
 {
   et6i_stMacInit_E,
+  et6i_stMacWaitForConfig_E,
   et6i_stMacWaitForBinding_E,
   et6i_stMacBindingAbort_E,
   et6i_stMacConfigRxData_E,
+  et6i_stMacWaitForReconfig_E,
   et6i_stMacScanForRxData_E,
   et6i_stMacRx_E,
 } et6i_stMac_te;
@@ -35,6 +39,7 @@ typedef struct et6i_prm_s
 typedef struct et6i_prv_s
 {
   et6i_stMac_te st_e;
+  nrf24l01_cfg_ts cfgTrx_s;
   uint8_t addr_au8[3];
 
   uint8_t bandInfo_u8;
@@ -42,7 +47,6 @@ typedef struct et6i_prv_s
   uint8_t strtBand2_u8;
   uint8_t currCh1_u8;
   uint8_t currCh2_u8;
-  uint8_t actvCh_u8;
 
   uint32_t cnt_u32;
   uint32_t cntTimeout_u32;

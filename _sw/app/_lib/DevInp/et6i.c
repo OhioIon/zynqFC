@@ -5,8 +5,6 @@
 #include "et6i.h"
 #include "nrf24l01.h"
 
-#include <sleep.h>
-
 #include <stdio.h>
 #include <string.h>
 
@@ -45,22 +43,31 @@ void et6i( void )
   case et6i_stMacInit_E: // Prepare for reception of binding packet
 
     // Configure transceiver
-    nrf24l01_setChannel( 50 );
-    nrf24l01_setDataRate( nrf24l01_dataRate1Mbps_E );
-    nrf24l01_setPayloadSize( 13 );
-    nrf24l01_setAutoAck( 0 );
-    nrf24l01_setAddr( 3, 0x000000 );
-    nrf24l01_setCrcSize( 2 );
-
-    // Enable receiver
-    nrf24l01_enable();
+    et6i_s.prv_s.cfgTrx_s.ch_u8          = 50;
+    et6i_s.prv_s.cfgTrx_s.dataRate_e     = nrf24l01_dataRate1Mbps_E;
+    et6i_s.prv_s.cfgTrx_s.flgAutoAck_u8  = 0;
+    et6i_s.prv_s.cfgTrx_s.crcSize_u8     = 2;
+    et6i_s.prv_s.cfgTrx_s.payloadsize_u8 = 13;
+    et6i_s.prv_s.cfgTrx_s.addrSize_u8    = 3;
+    et6i_s.prv_s.cfgTrx_s.addr_u64       = 0x000000;
+    nrf24l01_cfgStart( &et6i_s.prv_s.cfgTrx_s );
 
     // Go to next state
-    et6i_s.prv_s.st_e = et6i_stMacWaitForBinding_E;
+    et6i_s.prv_s.st_e = et6i_stMacWaitForConfig_E;
 
-    // Debug
-    printf("Wait for TX signal ... ");
+    break;
 
+  case et6i_stMacWaitForConfig_E: // Wait until TRX configuration is complete
+
+    // Check if configuration finished
+    if( !nrf24l01_cfgBusy() )
+    {
+      // Go to next state
+      et6i_s.prv_s.st_e = et6i_stMacWaitForBinding_E;
+
+      // Debug
+      printf("Wait for TX signal ... ");
+    }
     break;
 
   case et6i_stMacWaitForBinding_E: // Receive binding packets from TX
@@ -196,33 +203,35 @@ void et6i( void )
 
   case et6i_stMacConfigRxData_E: // Reconfigure transceiver for data reception
 
-    // Disable transceiver
-    nrf24l01_disable();
-    usleep( 10000 );
-
-    // Set new address as received during binding
-    uint64_t addr_u64 = 0;
-    addr_u64 |= (uint64_t)et6i_s.prv_s.addr_au8[2] <<  0;
-    addr_u64 |= (uint64_t)et6i_s.prv_s.addr_au8[1] <<  8;
-    addr_u64 |= (uint64_t)et6i_s.prv_s.addr_au8[0] << 16;
-    addr_u64 |= (uint64_t)0xBB                     << 24;
-    nrf24l01_setAddr( 4, addr_u64 );
+    // Set new 4-byte address as received during binding
+    et6i_s.prv_s.cfgTrx_s.addr_u64  = 0;
+    et6i_s.prv_s.cfgTrx_s.addr_u64 |= (uint64_t)et6i_s.prv_s.addr_au8[2] <<  0;
+    et6i_s.prv_s.cfgTrx_s.addr_u64 |= (uint64_t)et6i_s.prv_s.addr_au8[1] <<  8;
+    et6i_s.prv_s.cfgTrx_s.addr_u64 |= (uint64_t)et6i_s.prv_s.addr_au8[0] << 16;
+    et6i_s.prv_s.cfgTrx_s.addr_u64 |= (uint64_t)0xBB                     << 24;
+    et6i_s.prv_s.cfgTrx_s.addrSize_u8 = 4;
 
     // Start searching for payload on center of band 1
     et6i_s.prv_s.currCh1_u8 = et6i_s.prv_s.strtBand1_u8 + 3;
     et6i_s.prv_s.currCh2_u8 = et6i_s.prv_s.strtBand2_u8 + 3;
-    et6i_s.prv_s.actvCh_u8  = et6i_s.prv_s.currCh1_u8;
-    nrf24l01_setChannel( et6i_s.prv_s.actvCh_u8 );
+    et6i_s.prv_s.cfgTrx_s.ch_u8 = et6i_s.prv_s.currCh1_u8;
 
-    // Flush RX FIFO
-    nrf24l01_flushRxData();
+    // Reconfigure device
+    nrf24l01_cfgStart( &et6i_s.prv_s.cfgTrx_s );
 
-    // Enable transceiver
-    nrf24l01_enable();
+    // Wait until finished
+    et6i_s.prv_s.st_e = et6i_stMacWaitForReconfig_E;
 
-    // Check first channel for data
-    et6i_s.prv_s.st_e = et6i_stMacScanForRxData_E;
+    break;
 
+  case et6i_stMacWaitForReconfig_E: // Wait until reconfiguration is complete
+
+    // Check if configuration finished
+    if( !nrf24l01_cfgBusy() )
+    {
+      // Check first channel for data
+      et6i_s.prv_s.st_e = et6i_stMacScanForRxData_E;
+    }
     break;
 
   case et6i_stMacScanForRxData_E: // Wait until RX data is received on first channel
@@ -277,7 +286,7 @@ void et6i( void )
         et6i_s.prv_s.cntTimeout_u32 = 0;
 
         // Increment packet count (for active channel)
-        if( et6i_s.prv_s.actvCh_u8 == et6i_s.prv_s.currCh1_u8 )
+        if( et6i_s.prv_s.cfgTrx_s.ch_u8 == et6i_s.prv_s.currCh1_u8 )
         {
           et6i_s.prv_s.cntPktCh1_u32++;
         }
@@ -296,20 +305,17 @@ void et6i( void )
       et6i_s.prv_s.cnt_u32 = 0;
 
       // Check which channel is active and select the other one
-      if( et6i_s.prv_s.actvCh_u8 == et6i_s.prv_s.currCh1_u8 )
+      if( et6i_s.prv_s.cfgTrx_s.ch_u8 == et6i_s.prv_s.currCh1_u8 )
       {
-        et6i_s.prv_s.actvCh_u8 = et6i_s.prv_s.currCh2_u8;
+        et6i_s.prv_s.cfgTrx_s.ch_u8 = et6i_s.prv_s.currCh2_u8;
       }
       else
       {
-        et6i_s.prv_s.actvCh_u8 = et6i_s.prv_s.currCh1_u8;
+        et6i_s.prv_s.cfgTrx_s.ch_u8 = et6i_s.prv_s.currCh1_u8;
       }
 
       // Set new channel
-      nrf24l01_disable();
-      nrf24l01_setChannel( et6i_s.prv_s.actvCh_u8 );
-      nrf24l01_flushRxData();
-      nrf24l01_enable();
+      nrf24l01_switchChannel( et6i_s.prv_s.cfgTrx_s.ch_u8 );
     }
 
     // Check if we have a timeout

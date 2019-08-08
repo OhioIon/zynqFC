@@ -28,6 +28,8 @@
 
 /******************** Types *********************/
 
+
+
 /***************** Private Data *****************/
 
 /****************** Prototypes ******************/
@@ -42,12 +44,18 @@ extern bool gpio_nRF24L01_IRQ( void );       // Get IRQ GPIO state
 static uint8_t nrf24l01_readReg ( uint8_t addr_u8 );
 static void    nrf24l01_writeReg( uint8_t addr_u8, uint8_t data_u8 );
 
+// Data
+static void nrf24l01_flushRxData( void );
+
 /**************** Implementation ****************/
 
 // Initialize nRF24L01 chip
 uint8_t nrf24l01_init( void )
 {
   uint8_t reg_u8;
+
+  // Init privates
+  memset( &nrf24l01_s.prv_s, 0, sizeof(nrf24l01_s.prv_s) );
 
   // Clear chip-enable
   gpio_nRF24L01_CE( 0 );
@@ -64,7 +72,7 @@ uint8_t nrf24l01_init( void )
   reg_u8 |= 0x33;
   nrf24l01_writeReg( CONFIG, reg_u8 );
 
-  // Wait power-up time
+  // Wait power-up time Tpd2stby
   usleep( 20000 );
 
   // Flush RX FIFO to discard all old messages
@@ -72,107 +80,149 @@ uint8_t nrf24l01_init( void )
 
   // Done
   return 0;
-} 
-
-// Configure frequency channel in 2.4 GHz band
-void nrf24l01_setChannel( uint8_t ch_u8 )
-{
-  if( ch_u8 <= 127 )
-  {
-    nrf24l01_writeReg( RF_CH, ch_u8 );
-  }
 }
 
-// Configure CRC field size
-void nrf24l01_setCrcSize( uint8_t byte_u8 )
+// Start (re-)configuration of nRF24L01 device
+// Return 0: ok, 1: parameter error
+uint8_t nrf24l01_cfgStart( nrf24l01_cfg_ts * cfg_ps )
 {
-  uint8_t reg_u8 = nrf24l01_readReg( CONFIG );
-  if( byte_u8 == 1 )
-  {
-    reg_u8 &= ~0x04;
-  }
-  if( byte_u8 == 2 )
-  {
-    reg_u8 |= 0x04;
-  }
-  nrf24l01_writeReg( CONFIG, reg_u8 );
+  // Check configuration
+  if( cfg_ps == NULL ) return 1;
+  if( cfg_ps->ch_u8 > 127 ) return 1;
+  if( cfg_ps->dataRate_e > nrf24l01_dataRate2Mbps_E ) return 1;
+  if( cfg_ps->crcSize_u8 < 1 ) return 1;
+  if( cfg_ps->crcSize_u8 > 2 ) return 1;
+  if( cfg_ps->payloadsize_u8 > 32 ) return 1;
+  if( cfg_ps->addrSize_u8 < 3 ) return 1;
+  if( cfg_ps->addrSize_u8 > 5 ) return 1;
+
+  // Backup configuration
+  nrf24l01_s.prv_s.cfg_s = *cfg_ps;
+
+  // Init state machine. Processing is done in busy call.
+  nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgStarted_E;
+
+  return 0;
 }
 
-// Enable/disable auto-acknowledge on data pipe 0
-void nrf24l01_setAutoAck( uint8_t flg_u8 )
+// Process configuration state machine. Returns zero once finished.
+bool nrf24l01_cfgBusy ( void )
 {
-  uint8_t reg_u8 = nrf24l01_readReg( ENAA );
-  if( flg_u8 != 0 )
-  {
-    reg_u8 |= 0x01;
-  }
-  else
-  {
-    reg_u8 &= ~0x01;
-  }
-  nrf24l01_writeReg( ENAA, reg_u8 );
-}
-
-// Set transmission data rate
-void nrf24l01_setDataRate( nrf24l01_dataRate_te rate_e )
-{
-  uint8_t reg_u8 = nrf24l01_readReg( RF_SETUP );
-  switch( rate_e )
-  {
-  case nrf24l01_dataRate250kbps_E:
-    reg_u8 |=  0x20;
-    reg_u8 &= ~0x08;
-    break;
-
-  case nrf24l01_dataRate1Mbps_E:
-    reg_u8 &= ~0x28;
-    break;
-
-  case nrf24l01_dataRate2Mbps_E:
-    reg_u8 |=  0x08;
-    reg_u8 &= ~0x20;
-    break;
-
-  default:
-    break;
-  }
-  nrf24l01_writeReg( RF_SETUP, reg_u8 );
-}
-
-// Set number of payload bytes
-void nrf24l01_setPayloadSize( uint8_t byte_u8 )
-{
-  if( byte_u8 <= 32 )
-  {
-    nrf24l01_writeReg( RX_PW_P0, byte_u8 );
-  }
-}
-
-// Set address size and address
-void nrf24l01_setAddr( uint8_t byte_u8, uint64_t addr_u64 )
-{
+  bool retVal_l = 1;
+  uint8_t reg_u8;
   uint8_t buf_au8[6];
 
-  if( (byte_u8 >= 3) && (byte_u8 <= 5) )
+  switch( nrf24l01_s.prv_s.stCfg_e )
   {
-    // Only enable RX address 0
-    nrf24l01_writeReg( EN_RXADDR, 0x01 );
+    default:
+    case nrf24l01_stCfgIdle_E: // Not busy / idle
+      retVal_l = 0;
+      break;
 
-    // Configure address width
-    nrf24l01_writeReg( SETUP_AW, byte_u8 - 2 );
+    case nrf24l01_stCfgStarted_E: // Configuration started -> Clear CE pin
+      gpio_nRF24L01_CE( 0 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgChannel_E;
+      break;
 
-    // Prepare payload
-    buf_au8[0] = RX_ADDR_P0 | WRITE;      // Register Address + write command
-    buf_au8[1] = addr_u64 & 0xFF;         // LSByte
-    buf_au8[2] = (addr_u64 >>  8) & 0xFF; // Byte 2
-    buf_au8[3] = (addr_u64 >> 16) & 0xFF; // Byte 3
-    buf_au8[4] = (addr_u64 >> 24) & 0xFF; // (Byte 4)
-    buf_au8[5] = (addr_u64 >> 32) & 0xFF; // (Byte 5)
+    case nrf24l01_stCfgChannel_E: // Configure channel
+      nrf24l01_writeReg( RF_CH, nrf24l01_s.prv_s.cfg_s.ch_u8 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgRate_E;
+      break;
 
-    // Transfer data (polled)
-    spi_nrf24l01_transferData( buf_au8, buf_au8, byte_u8 + 1 );
-    while( spi_nrf24l01_busy() );
+    case nrf24l01_stCfgRate_E: // Configure data rate
+      reg_u8 = nrf24l01_readReg( RF_SETUP );
+      if( nrf24l01_s.prv_s.cfg_s.dataRate_e == nrf24l01_dataRate250kbps_E )
+      {
+        reg_u8 |=  0x20;
+        reg_u8 &= ~0x08;
+      }
+      if( nrf24l01_s.prv_s.cfg_s.dataRate_e == nrf24l01_dataRate1Mbps_E )
+      {
+        reg_u8 &= ~0x28;
+      }
+      if( nrf24l01_s.prv_s.cfg_s.dataRate_e == nrf24l01_dataRate2Mbps_E )
+      {
+        reg_u8 |=  0x08;
+        reg_u8 &= ~0x20;
+      }
+      nrf24l01_writeReg( RF_SETUP, reg_u8 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgAutoAck_E;
+      break;
+
+    case nrf24l01_stCfgAutoAck_E: // Configure auto-acknowledge
+      reg_u8 = nrf24l01_readReg( ENAA );
+      if( nrf24l01_s.prv_s.cfg_s.flgAutoAck_u8 != 0 )
+      {
+        reg_u8 |= 0x01;
+      }
+      else
+      {
+        reg_u8 &= ~0x01;
+      }
+      nrf24l01_writeReg( ENAA, reg_u8 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgCrcSize_E;
+      break;
+
+    case nrf24l01_stCfgCrcSize_E: // Configure CRC size
+      reg_u8 = nrf24l01_readReg( CONFIG );
+      if( nrf24l01_s.prv_s.cfg_s.crcSize_u8 == 1 )
+      {
+        reg_u8 &= ~0x04;
+      }
+      else // 2 Byte
+      {
+        reg_u8 |= 0x04;
+      }
+      nrf24l01_writeReg( CONFIG, reg_u8 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgPayloadSize_E;
+      break;
+
+    case nrf24l01_stCfgPayloadSize_E: // Configure payload size
+      nrf24l01_writeReg( RX_PW_P0, nrf24l01_s.prv_s.cfg_s.payloadsize_u8 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgAddrSize_E;
+      break;
+
+    case nrf24l01_stCfgAddrSize_E: // Configure address size
+      nrf24l01_writeReg( EN_RXADDR, 0x01 ); // Only enable RX address 0
+      nrf24l01_writeReg( SETUP_AW, nrf24l01_s.prv_s.cfg_s.addrSize_u8 - 2 ); // Configure address width
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgAddr_E;
+      break;
+
+    case nrf24l01_stCfgAddr_E: // Configure address
+      // Prepare payload
+      buf_au8[0] = RX_ADDR_P0 | WRITE;                             // Register Address + write command
+      buf_au8[1] =  nrf24l01_s.prv_s.cfg_s.addr_u64 & 0xFF;        // LSByte
+      buf_au8[2] = (nrf24l01_s.prv_s.cfg_s.addr_u64 >>  8) & 0xFF; // Byte 2
+      buf_au8[3] = (nrf24l01_s.prv_s.cfg_s.addr_u64 >> 16) & 0xFF; // Byte 3
+      buf_au8[4] = (nrf24l01_s.prv_s.cfg_s.addr_u64 >> 24) & 0xFF; // (Byte 4)
+      buf_au8[5] = (nrf24l01_s.prv_s.cfg_s.addr_u64 >> 32) & 0xFF; // (Byte 5)
+      // Transfer data (polled)
+      spi_nrf24l01_transferData( buf_au8, buf_au8, nrf24l01_s.prv_s.cfg_s.addrSize_u8 + 1 );
+      while( spi_nrf24l01_busy() );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgFlush_E;
+      break;
+
+    case nrf24l01_stCfgFlush_E: // Flush RX buffer
+      nrf24l01_flushRxData();
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgEnableChip_E;
+      break;
+
+    case nrf24l01_stCfgEnableChip_E: // Enable chip and wait (CE pin)
+      gpio_nRF24L01_CE( 1 );
+      usleep( 70 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgEnableWait_E;
+      break;
+
+    case nrf24l01_stCfgEnableWait_E: // Wait remaining RX settling time
+      usleep( 70 );
+      nrf24l01_s.prv_s.stCfg_e = nrf24l01_stCfgIdle_E;
+
+      // Done!
+      retVal_l = 0;
+      break;
   }
+
+  return retVal_l;
 }
 
 // Enable reception of data
@@ -213,6 +263,7 @@ uint8_t nrf24l01_getRxData( uint8_t *buf_au8, uint8_t byteCnt_u8 )
   // Check for RX data
   if( retVal_u8 == 0 )
   {
+    // TODO: Use IRQ pin?
     // Read status register
     reg_u8 = nrf24l01_readReg( STATUS );
 
@@ -232,6 +283,7 @@ uint8_t nrf24l01_getRxData( uint8_t *buf_au8, uint8_t byteCnt_u8 )
     bufTmp_au8[0] = 0x61;
 
     // Transfer data (polled)
+    // TODO: Fetch packet data automatically via interrupt and provide to caller here if available
     spi_nrf24l01_transferData( bufTmp_au8, bufTmp_au8, byteCnt_u8 + 1 );
     while( spi_nrf24l01_busy() );
 
@@ -246,6 +298,12 @@ uint8_t nrf24l01_getRxData( uint8_t *buf_au8, uint8_t byteCnt_u8 )
   }
 
   return retVal_u8;
+}
+
+void nrf24l01_switchChannel( uint8_t ch_u8 )
+{
+  nrf24l01_writeReg( RF_CH, nrf24l01_s.prv_s.cfg_s.ch_u8 );
+  nrf24l01_flushRxData();
 }
 
 // Flush RX FIFO (polled)
