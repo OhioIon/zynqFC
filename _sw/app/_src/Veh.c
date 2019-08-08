@@ -2,8 +2,11 @@
 
 /****************** Includes ********************/
 
-#include "Veh.h"
+#include "main.h"
+#include "Bas.h"
 #include "DevInp.h"
+#include "Veh.h"
+#include "DevOutp.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -33,8 +36,8 @@ uint8_t Veh_init( void )
   Veh_s.arm_s.prm_s.yawThres_perml_s16 = -900;
   Veh_s.arm_s.prm_s.pitThres_perml_s16 =  900;
   Veh_s.arm_s.prm_s.rolThres_perml_s16 =  900;
-  Veh_s.arm_s.prm_s.tiCyc_us_u16       =  125;
-  Veh_s.arm_s.prm_s.tiArmDly_ms_u16    =   70; // TODO - Fix loop time
+  Veh_s.arm_s.prm_s.tiCyc_us_u16       =  TASK_TIME_US_D;
+  Veh_s.arm_s.prm_s.tiArmDly_ms_u16    =  500;
   arm_init( &Veh_s.arm_s );
 
   // Configure exponential instances
@@ -61,19 +64,19 @@ uint8_t Veh_init( void )
   Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 900;
   Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 500;
   Veh_s.pidYaw_s.prm_s.kd_perml_u16 = 0;
-  Veh_s.pidYaw_s.prm_s.tiCyc_us_u16 = 125;
+  Veh_s.pidYaw_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidYaw_s );
 
   Veh_s.pidPit_s.prm_s.kp_perml_u16 = 800;
   Veh_s.pidPit_s.prm_s.ki_perml_u16 = 500;
   Veh_s.pidPit_s.prm_s.kd_perml_u16 =   0;
-  Veh_s.pidPit_s.prm_s.tiCyc_us_u16 = 125;
+  Veh_s.pidPit_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidPit_s );
 
   Veh_s.pidRol_s.prm_s.kp_perml_u16 = 500;
   Veh_s.pidRol_s.prm_s.ki_perml_u16 = 400;
   Veh_s.pidRol_s.prm_s.kd_perml_u16 =   0;
-  Veh_s.pidRol_s.prm_s.tiCyc_us_u16 = 125;
+  Veh_s.pidRol_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidRol_s );
 
   return retVal_u8;
@@ -137,10 +140,10 @@ void Veh( void )
   pid( &Veh_s.pidPit_s );
   pid( &Veh_s.pidRol_s );
 
-  static uint8_t cnt_u8;
+  static uint16_t cnt_u16;
   if( Veh_s.arm_s.outp_s.flgArmed_u8 )
   {
-    if( cnt_u8++ > 200 )
+    if( cnt_u16++ > 800 )
     {
       putchar(0);
       printf("Channel  Y %5d, P %5d, R %5d [0.1 %%]\n",
@@ -159,7 +162,7 @@ void Veh( void )
           Veh_s.pidYaw_s.outp_s.out_p1degps_s16,
           Veh_s.pidPit_s.outp_s.out_p1degps_s16,
           Veh_s.pidRol_s.outp_s.out_p1degps_s16);
-      cnt_u8 = 0;
+      cnt_u16 = 0;
     }
   }
 

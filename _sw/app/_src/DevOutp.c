@@ -2,10 +2,11 @@
 
 /****************** Includes ********************/
 
-#include "DevOutp.h"
+#include "main.h"
 #include "Bas.h"
 #include "DevInp.h"
 #include "Veh.h"
+#include "DevOutp.h"
 
 #include <stdio.h>
 #include <xparameters.h>
@@ -44,7 +45,7 @@ uint8_t DevOutp_init( void )
   retVal_u8 += dshot_init( &DevOutp_s.dshotMotRearRght_s );
 
   // Init LED
-  DevOutp_s.led4_s.prm_s.tiCyc_us_u16       = 1200; // TODO - Fix cycle time
+  DevOutp_s.led4_s.prm_s.tiCyc_us_u16       = TASK_TIME_US_D;
   DevOutp_s.led4_s.prm_s.tiBlinkSlow_ms_u16 = 1000;
   DevOutp_s.led4_s.prm_s.tiBlinkFast_ms_u16 = 200;
   retVal_u8 += led_init( &DevOutp_s.led4_s );
@@ -69,8 +70,8 @@ void DevOutp( void )
     dshot( &DevOutp_s.dshotMotRearRght_s );
 
     // Debug
-    static uint8_t cnt_u8 = 0;
-    if( cnt_u8++ > 200 )
+    static uint16_t cnt_u16 = 0;
+    if( cnt_u16++ > 800 )
     {
       printf("Motors Raw:\n");
       printf("%4d, %4d\n",
@@ -79,7 +80,7 @@ void DevOutp( void )
       printf("%4d, %4d\n",
           DevOutp_s.dshotMotRearLeft_s.inp_s.thrData_u16,
           DevOutp_s.dshotMotRearRght_s.inp_s.thrData_u16);
-      cnt_u8 = 0;
+      cnt_u16 = 0;
     }
   }
 

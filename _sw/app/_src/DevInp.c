@@ -2,8 +2,11 @@
 
 /****************** Includes ********************/
 
+#include "main.h"
+#include "Bas.h"
 #include "DevInp.h"
 #include "Veh.h"
+#include "DevOutp.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -30,8 +33,8 @@ uint8_t DevInp_init( void )
   retVal_u8 += nrf24l01_init();
 
   // Init E-Sky ET6I 2.4 GHz 6-channel receiver
-  et6i_s.prm_s.tiCyc_us_u16    = 125;
-  et6i_s.prm_s.timeoutRx_ms_u8 =  30; // TODO - fix loop time
+  et6i_s.prm_s.tiCyc_us_u16    = TASK_TIME_US_D;
+  et6i_s.prm_s.timeoutRx_ms_u8 = 1000;
   if( retVal_u8 == 0 ) retVal_u8 += et6i_init();
 
   // Init moving average filter instances

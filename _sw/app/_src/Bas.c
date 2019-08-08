@@ -25,6 +25,8 @@ uint8_t Bas_init( void )
   if( retVal_u8 == 0 ) retVal_u8 += gpio_init();
   if( retVal_u8 == 0 ) retVal_u8 += spi_init();
   if( retVal_u8 == 0 ) retVal_u8 += iic_init();
+  if( retVal_u8 == 0 ) retVal_u8 += timer_init();
+  if( retVal_u8 == 0 ) retVal_u8 += intr_init();
 
   // Read EEPROM data
   if( retVal_u8 == 0)
@@ -33,18 +35,18 @@ uint8_t Bas_init( void )
     uint8_t addr_u8 = 0x00;
     iic_24aa02_send( &addr_u8, 1 );
 
-    // Read EEPROM page (128 Byte)
+    // Read EEPROM user-data (128 Byte)
     iic_24aa02_recv( eepData_au8, 128 );
   }
 
-  // Read EUI-48 MAC address from EEPROM
+  // Read EUI-48 node-address from EEPROM
   if( retVal_u8 == 0)
   {
     // Set EEPROM read address
     uint8_t addr_u8 = 0xFA;
     iic_24aa02_send( &addr_u8, 1 );
 
-    // Read MAC (6 Byte)
+    // Read node-address (e.g. MAC-address) from EEPROM (6 Byte)
     iic_24aa02_recv( node_au8, 6 );
   }
 

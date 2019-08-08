@@ -1,21 +1,15 @@
-#ifndef BAS_H
-#define BAS_H
+#ifndef INTR_H_
+#define INTR_H_
 
-#ifdef BAS_C
-#define BAS_SCOPE
+#ifdef INTR_C
+#define INTR_SCOPE
 #else
-#define BAS_SCOPE extern
+#define INTR_SCOPE extern
 #endif
 
 /****************** Includes ********************/
 
 #include <stdint.h>
-
-#include "gpio.h"
-#include "iic.h"
-#include "intr.h"
-#include "spi.h"
-#include "timer.h"
 
 /******************* Defines ********************/
 
@@ -25,6 +19,9 @@
 
 /******************* Interface ******************/
 
-BAS_SCOPE uint8_t Bas_init( void );
+INTR_SCOPE uint8_t intr_init( void );
 
-#endif // BAS_H
+INTR_SCOPE void intr_enable( void );
+INTR_SCOPE void intr_disable( void );
+
+#endif /* INTR_H_ */
