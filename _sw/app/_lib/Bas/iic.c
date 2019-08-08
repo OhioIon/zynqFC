@@ -5,7 +5,6 @@
 #include "iic.h"
 
 #include <xparameters.h>
-#include <xiicps.h>
 
 /******************* Defines ********************/
 
@@ -13,10 +12,11 @@
 
 /***************** Private Data *****************/
 
-static XIicPs eeprom_s;
-static XIicPs mpu6000Iic_s;
+static bool flgMpu6000Busy_l;
 
 /****************** Prototypes ******************/
+
+static void iic_mpu6000_intr(void *CallBackRef, u32 StatusEvent);
 
 /**************** Implementation ****************/
 
@@ -53,6 +53,9 @@ uint8_t iic_init( void )
 
     // Set IIC clock speed
     XIicPs_SetSClk( &mpu6000Iic_s, 400000 );
+
+    // Register interrupt handler status callback
+    XIicPs_SetStatusHandler( &mpu6000Iic_s, &mpu6000Iic_s, iic_mpu6000_intr );
   }
 
   // Done
@@ -71,16 +74,33 @@ void iic_24aa02_recv( uint8_t *bufIn_pu8 , uint8_t ByteCnt_u8 )
   XIicPs_MasterRecvPolled( &eeprom_s, bufIn_pu8, ByteCnt_u8, 0x50 );
 }
 
-// MPU-6000 IIC wrapper to send data (polled)
+// MPU-6000 IIC wrapper to send data (interrupt)
 void iic_mpu6000_send( uint8_t *bufOut_pu8, uint8_t ByteCnt_u8 )
 {
-  XIicPs_MasterSendPolled( &mpu6000Iic_s, bufOut_pu8, ByteCnt_u8, 0x68 );
+  flgMpu6000Busy_l = 1;
+  XIicPs_MasterSend( &mpu6000Iic_s, bufOut_pu8, ByteCnt_u8, 0x68 );
 }
 
-// MPU-6000 IIC wrapper to receive data (polled)
+// MPU-6000 IIC wrapper to receive data (interrupt)
 void iic_mpu6000_recv( uint8_t *bufIn_pu8 , uint8_t ByteCnt_u8 )
 {
-  XIicPs_MasterRecvPolled( &mpu6000Iic_s, bufIn_pu8, ByteCnt_u8, 0x68 );
+  flgMpu6000Busy_l = 1;
+  XIicPs_MasterRecv( &mpu6000Iic_s, bufIn_pu8, ByteCnt_u8, 0x68 );
+}
+
+// Indicates true if transfer is still in progress (use for polled mode)
+bool iic_mpu6000_busy( void )
+{
+  return flgMpu6000Busy_l;
+}
+
+// Interrupt status handler callback for MPU-6000
+static void iic_mpu6000_intr(void *CallBackRef, u32 StatusEvent)
+{
+  if( StatusEvent & (XIICPS_EVENT_COMPLETE_RECV | XIICPS_EVENT_COMPLETE_SEND) )
+  {
+    flgMpu6000Busy_l = 0;
+  }
 }
 
 // EOF

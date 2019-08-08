@@ -31,10 +31,14 @@
 // HAL
 extern void iic_mpu6000_send( uint8_t *bufOut_pu8, uint8_t ByteCnt_u8 ); // Send data via I²C
 extern void iic_mpu6000_recv( uint8_t *bufIn_pu8 , uint8_t ByteCnt_u8 ); // Receive data via I²C
+extern bool iic_mpu6000_busy( void );                                    // Transfer busy
 
 // Register Access (polled)
 static uint8_t mpu6000_readReg ( uint8_t addr_u8 );
 static void    mpu6000_writeReg( uint8_t addr_u8, uint8_t data_u8 );
+
+// Data Access
+static void mpu6000_readData( void );
 
 /**************** Implementation ****************/
 
@@ -63,6 +67,10 @@ uint8_t mpu6000_init( void )
   mpu6000_writeReg( REG_GYRO_CFG, 0x00 );
   mpu6000_s.prv_s.currRate_p1degps_s16 = 2500;
 
+  // Read initial sensor data (polled)
+  mpu6000_readData();
+  while( iic_mpu6000_busy() );
+
   // Done
   return 0;
 }
@@ -70,22 +78,22 @@ uint8_t mpu6000_init( void )
 // Get measurement from sensor
 void mpu6000( void )
 {
-  // Set address
-  mpu6000_s.prv_s.buf_au8[0] = REG_GYRO_XOUT; // 7-bit Register Address
-  iic_mpu6000_send( mpu6000_s.prv_s.buf_au8, 1 );
+  // Check if transfer is complete
+  if( !iic_mpu6000_busy() )
+  {
+    // Extract RAW data from buffer
+    int16_t rotX_s16 = ((int16_t)mpu6000_s.prv_s.buf_au8[0] << 8) | mpu6000_s.prv_s.buf_au8[1];
+    int16_t rotY_s16 = ((int16_t)mpu6000_s.prv_s.buf_au8[2] << 8) | mpu6000_s.prv_s.buf_au8[3];
+    int16_t rotZ_s16 = ((int16_t)mpu6000_s.prv_s.buf_au8[4] << 8) | mpu6000_s.prv_s.buf_au8[5];
 
-  // Read 6 Bytes gyro data from device
-  iic_mpu6000_recv( mpu6000_s.prv_s.buf_au8, 6 );
+    // Convert RAW rotation measurement to physical [0.1 °/s]
+    mpu6000_s.outp_s.rotX_p1degps_s16 = (int16_t)((double)rotX_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
+    mpu6000_s.outp_s.rotY_p1degps_s16 = (int16_t)((double)rotY_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
+    mpu6000_s.outp_s.rotZ_p1degps_s16 = (int16_t)((double)rotZ_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
 
-  // Extract RAW data from buffer
-  int16_t rotX_s16 = ((int16_t)mpu6000_s.prv_s.buf_au8[0] << 8) | mpu6000_s.prv_s.buf_au8[1];
-  int16_t rotY_s16 = ((int16_t)mpu6000_s.prv_s.buf_au8[2] << 8) | mpu6000_s.prv_s.buf_au8[3];
-  int16_t rotZ_s16 = ((int16_t)mpu6000_s.prv_s.buf_au8[4] << 8) | mpu6000_s.prv_s.buf_au8[5];
-
-  // Convert RAW rotation measurement to physical [0.1 °/s]
-  mpu6000_s.outp_s.rotX_p1degps_s16 = (int16_t)((double)rotX_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
-  mpu6000_s.outp_s.rotY_p1degps_s16 = (int16_t)((double)rotY_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
-  mpu6000_s.outp_s.rotZ_p1degps_s16 = (int16_t)((double)rotZ_s16 * mpu6000_s.prv_s.currRate_p1degps_s16 / 3276.70);
+    // Start new transfer
+    mpu6000_readData();
+  }
 }
 
 // Read register of MPU-6000 (polled)
@@ -94,9 +102,11 @@ static uint8_t mpu6000_readReg( uint8_t addr_u8 )
   // Set address
   mpu6000_s.prv_s.buf_au8[0] = addr_u8 & 0x7F; // 7-bit Register Address
   iic_mpu6000_send( mpu6000_s.prv_s.buf_au8, 1 );
+  while( iic_mpu6000_busy() );
 
   // Read 1-byte register data
   iic_mpu6000_recv( mpu6000_s.prv_s.buf_au8, 1 );
+  while( iic_mpu6000_busy() );
 
   // Return data
   return mpu6000_s.prv_s.buf_au8[0];
@@ -111,6 +121,19 @@ static void mpu6000_writeReg( uint8_t addr_u8, uint8_t data_u8 )
 
   // Send data
   iic_mpu6000_send( mpu6000_s.prv_s.buf_au8, 2 );
+  while( iic_mpu6000_busy() );
+}
+
+// Start reading IMU sensor data
+static void mpu6000_readData( void )
+{
+  // Set address (polled)
+  mpu6000_s.prv_s.buf_au8[0] = REG_GYRO_XOUT; // 7-bit Register Address
+  iic_mpu6000_send( mpu6000_s.prv_s.buf_au8, 1 );
+  while( iic_mpu6000_busy() );
+
+  // Start to read 6 Bytes from device (interrupt)
+  iic_mpu6000_recv( mpu6000_s.prv_s.buf_au8, 6 );
 }
 
 // EOF
