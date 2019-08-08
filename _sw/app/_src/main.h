@@ -15,7 +15,7 @@
 
 /******************* Defines ********************/
 
-#define TASK_TIME_US_D 1000 // 125 µs task cycle time (8 kHz)
+#define TASK_TIME_US_D 125 // 125 µs task cycle time (8 kHz)
 
 /******************** Types *********************/
 
