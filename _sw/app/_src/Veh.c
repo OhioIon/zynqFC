@@ -61,20 +61,20 @@ uint8_t Veh_init( void )
   if( retVal_u8 == 0 ) retVal_u8 += rateDes_init( &Veh_s.rateRol_s );
 
   // Configure PID instances
-  Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 900;
-  Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 500;
+  Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 450;
+  Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 250;
   Veh_s.pidYaw_s.prm_s.kd_perml_u16 = 0;
   Veh_s.pidYaw_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidYaw_s );
 
-  Veh_s.pidPit_s.prm_s.kp_perml_u16 = 800;
-  Veh_s.pidPit_s.prm_s.ki_perml_u16 = 500;
+  Veh_s.pidPit_s.prm_s.kp_perml_u16 = 400;
+  Veh_s.pidPit_s.prm_s.ki_perml_u16 = 250;
   Veh_s.pidPit_s.prm_s.kd_perml_u16 =   0;
   Veh_s.pidPit_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidPit_s );
 
-  Veh_s.pidRol_s.prm_s.kp_perml_u16 = 500;
-  Veh_s.pidRol_s.prm_s.ki_perml_u16 = 400;
+  Veh_s.pidRol_s.prm_s.kp_perml_u16 = 250;
+  Veh_s.pidRol_s.prm_s.ki_perml_u16 = 200;
   Veh_s.pidRol_s.prm_s.kd_perml_u16 =   0;
   Veh_s.pidRol_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidRol_s );
