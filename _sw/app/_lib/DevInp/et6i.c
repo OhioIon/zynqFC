@@ -135,7 +135,7 @@ void et6i( void )
            et6i_s.prv_s.addr_au8[0],
            et6i_s.prv_s.addr_au8[1],
            et6i_s.prv_s.addr_au8[2],
-           et6i_s.prv_s.addr_au8[3],
+           et6i_s.prv_s.bandInfo_u8,
            dat_au8[0],
            dat_au8[1],
            dat_au8[2],
