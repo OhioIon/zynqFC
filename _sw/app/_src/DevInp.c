@@ -37,7 +37,7 @@ uint8_t DevInp_init( void )
 
   // Init E-Sky ET6I 2.4 GHz 6-channel receiver
   et6i_s.prm_s.tiCyc_us_u16    = TASK_TIME_US_D;
-  et6i_s.prm_s.timeoutRx_ms_u8 = 1000;
+  et6i_s.prm_s.timeoutRx_ms_u8 = 100;
   if( retVal_u8 == 0 ) retVal_u8 += et6i_init();
 
   // Init moving average filter instances
