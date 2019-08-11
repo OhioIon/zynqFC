@@ -1,0 +1,7 @@
+//arch = zynq; split = false; format = BIN
+the_ROM_image:
+{
+	[bootloader]..\fsbl\Release\fsbl.elf
+	..\toplevel_hw_platform_0\toplevel.bit
+	..\app\Release\app.elf
+}
