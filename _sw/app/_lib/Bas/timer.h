@@ -20,7 +20,7 @@
 
 /****************** Public Data *****************/
 
-TIMER_SCOPE bool flgTimerIntr_l; // Timer interrupt handshake
+TIMER_SCOPE volatile bool flgTimerIntr_l; // Timer interrupt handshake
 TIMER_SCOPE XScuTimer timer_s;   // SCU timer instance
 
 /******************* Interface ******************/

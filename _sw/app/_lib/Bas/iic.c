@@ -12,7 +12,7 @@
 
 /***************** Private Data *****************/
 
-static bool flgMpu6000Busy_l;
+static volatile bool flgMpu6000Busy_l;
 
 /****************** Prototypes ******************/
 

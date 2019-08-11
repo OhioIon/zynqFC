@@ -12,7 +12,7 @@
 
 /***************** Private Data *****************/
 
-static bool flgNrf24l01Busy_l;
+static volatile bool flgNrf24l01Busy_l;
 
 /****************** Prototypes ******************/
 
