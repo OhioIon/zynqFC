@@ -69,7 +69,7 @@ void DevOutp( void )
     dshot( &DevOutp_s.dshotMotRearLeft_s );
     dshot( &DevOutp_s.dshotMotRearRght_s );
 
-    // Debug
+#ifdef DEBUG
     static uint16_t cnt_u16 = 0;
     if( cnt_u16++ > 800 )
     {
@@ -82,7 +82,10 @@ void DevOutp( void )
           DevOutp_s.dshotMotRearRght_s.inp_s.thrData_u16);
       cnt_u16 = 0;
     }
+#endif
+
   }
+
 
   // Use LD4 on Zybo board to indicate RX connection state
   DevOutp_s.led4_s.inp_s.fct_e = led_fctBlinkSlow_E;

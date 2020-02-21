@@ -62,20 +62,20 @@ uint8_t Veh_init( void )
 
   // Configure PID instances
   Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 450;
-  Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 250;
+  Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 0;
   Veh_s.pidYaw_s.prm_s.kd_perml_u16 = 0;
   Veh_s.pidYaw_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidYaw_s );
 
   Veh_s.pidPit_s.prm_s.kp_perml_u16 = 400;
-  Veh_s.pidPit_s.prm_s.ki_perml_u16 = 250;
-  Veh_s.pidPit_s.prm_s.kd_perml_u16 =   0;
+  Veh_s.pidPit_s.prm_s.ki_perml_u16 = 0;
+  Veh_s.pidPit_s.prm_s.kd_perml_u16 = 0;
   Veh_s.pidPit_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidPit_s );
 
   Veh_s.pidRol_s.prm_s.kp_perml_u16 = 250;
-  Veh_s.pidRol_s.prm_s.ki_perml_u16 = 200;
-  Veh_s.pidRol_s.prm_s.kd_perml_u16 =   0;
+  Veh_s.pidRol_s.prm_s.ki_perml_u16 = 0;
+  Veh_s.pidRol_s.prm_s.kd_perml_u16 = 0;
   Veh_s.pidRol_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
   if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidRol_s );
 
@@ -130,6 +130,7 @@ void Veh( void )
   pid( &Veh_s.pidPit_s );
   pid( &Veh_s.pidRol_s );
 
+#ifdef DEBUG
   static uint16_t cnt_u16;
   if( Veh_s.arm_s.outp_s.flgArmed_u8 )
   {
@@ -155,6 +156,7 @@ void Veh( void )
       cnt_u16 = 0;
     }
   }
+#endif
 
   // TODO: Move this to module
   int16_t fl_s16 = 0;
@@ -162,20 +164,20 @@ void Veh( void )
   int16_t rl_s16 = 0;
   int16_t rr_s16 = 0;
   // YAW
-  fl_s16 -= Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
-  fr_s16 += Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
-  rl_s16 += Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
-  rr_s16 -= Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 8;
+  fl_s16 -= Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 16;
+  fr_s16 += Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 16;
+  rl_s16 += Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 16;
+  rr_s16 -= Veh_s.pidYaw_s.outp_s.out_p1degps_s16 / 16;
   // Pitch
-  fl_s16 += Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
-  fr_s16 += Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
-  rl_s16 -= Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
-  rr_s16 -= Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 8;
+  fl_s16 += Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 16;
+  fr_s16 += Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 16;
+  rl_s16 -= Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 16;
+  rr_s16 -= Veh_s.pidPit_s.outp_s.out_p1degps_s16 / 16;
   // Roll
-  fl_s16 += Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
-  fr_s16 -= Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
-  rl_s16 += Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
-  rr_s16 -= Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 8;
+  fl_s16 += Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 16;
+  fr_s16 -= Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 16;
+  rl_s16 += Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 16;
+  rr_s16 -= Veh_s.pidRol_s.outp_s.out_p1degps_s16 / 16;
   // Throttle
   fl_s16 += DevInp_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
   fr_s16 += DevInp_s.channelThr_s.outp_s.out_perml_s16 * 1.5;
