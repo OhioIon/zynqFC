@@ -3,6 +3,7 @@
 /****************** Includes ********************/
 
 #include "main.h"
+#include "dbg.h"
 #include "Bas.h"
 #include "DevInp.h"
 #include "Veh.h"
@@ -26,65 +27,97 @@ uint8_t DevInp_init( void )
 {
   uint8_t retVal_u8 = 0;
 
+  dbg( "\nInit Device Input Layer\n" );
+
   // Init outputs
   memset( &DevInp_s.outp_s, 0, sizeof(DevInp_s.outp_s) );
 
   // Init MPU-6000 driver
-  retVal_u8 += mpu6000_init();
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- mpu6000 ...      " );
+    retVal_u8 = mpu6000_init();
+    dbgRet( retVal_u8 );
+  }
 
   // Init nrf24l01 driver
-  retVal_u8 += nrf24l01_init();
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- nrf24l01 ...     " );
+    retVal_u8 = nrf24l01_init();
+    dbgRet( retVal_u8 );
+  }
 
   // Init E-Sky ET6I 2.4 GHz 6-channel receiver
   et6i_s.prm_s.tiCyc_us_u16    = TASK_TIME_US_D;
   et6i_s.prm_s.timeoutRx_ms_u8 = 100;
-  if( retVal_u8 == 0 ) retVal_u8 += et6i_init();
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- et6i ...         " );
+    retVal_u8 = et6i_init();
+    dbgRet( retVal_u8 );
+  }
 
   // Init moving average filter instances
-  maf_init( &DevInp_s.mafZ_s );
-  maf_init( &DevInp_s.mafX_s );
-  maf_init( &DevInp_s.mafY_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- maf ...          " );
+    retVal_u8  = maf_init( &DevInp_s.mafZ_s );
+    retVal_u8 += maf_init( &DevInp_s.mafX_s );
+    retVal_u8 += maf_init( &DevInp_s.mafY_s );
+    dbgRet( retVal_u8 );
+  }
 
   // Init rotation matrix instance
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[0][0] = 1.0;
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[0][1] = 0.0;
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[0][2] = 0.0;
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[1][0] = 0.0;
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[1][1] = +cos(-M_PI_4);
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[1][2] = -sin(-M_PI_4);
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[2][0] = 0.0;
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[2][1] = +sin(-M_PI_4);
-  DevInp_s.rotMatrix_s.prm_s.matrix_f[2][2] = +cos(-M_PI_4);
-  rotMatrix_init( &DevInp_s.rotMatrix_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- rotMatrix ...    " );
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[0][0] = 1.0;
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[0][1] = 0.0;
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[0][2] = 0.0;
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[1][0] = 0.0;
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[1][1] = +cos(-M_PI_4);
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[1][2] = -sin(-M_PI_4);
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[2][0] = 0.0;
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[2][1] = +sin(-M_PI_4);
+    DevInp_s.rotMatrix_s.prm_s.matrix_f[2][2] = +cos(-M_PI_4);
+    retVal_u8 = rotMatrix_init( &DevInp_s.rotMatrix_s );
+    dbgRet( retVal_u8 );
+  }
 
   // Init channel instances
-  DevInp_s.channelYaw_s.prm_s.lo_us_u16          = 1110;
-  DevInp_s.channelYaw_s.prm_s.hi_us_u16          = 1870;
-  DevInp_s.channelYaw_s.prm_s.deadBand_perml_u16 = 50;
-  DevInp_s.channelYaw_s.prm_s.flgPosOnly_u8      = 0;
-  DevInp_s.channelYaw_s.prm_s.flgReverse_u8      = 0;
-  retVal_u8 += channel_init( &DevInp_s.channelYaw_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- channel ...      " );
+    DevInp_s.channelYaw_s.prm_s.lo_us_u16          = 1110;
+    DevInp_s.channelYaw_s.prm_s.hi_us_u16          = 1870;
+    DevInp_s.channelYaw_s.prm_s.deadBand_perml_u16 = 50;
+    DevInp_s.channelYaw_s.prm_s.flgPosOnly_u8      = 0;
+    DevInp_s.channelYaw_s.prm_s.flgReverse_u8      = 0;
+    retVal_u8 = channel_init( &DevInp_s.channelYaw_s );
 
-  DevInp_s.channelPit_s.prm_s.lo_us_u16          = 1200;
-  DevInp_s.channelPit_s.prm_s.hi_us_u16          = 1887;
-  DevInp_s.channelPit_s.prm_s.deadBand_perml_u16 = 20;
-  DevInp_s.channelPit_s.prm_s.flgPosOnly_u8      = 0;
-  DevInp_s.channelPit_s.prm_s.flgReverse_u8      = 1;
-  retVal_u8 += channel_init( &DevInp_s.channelPit_s );
+    DevInp_s.channelPit_s.prm_s.lo_us_u16          = 1200;
+    DevInp_s.channelPit_s.prm_s.hi_us_u16          = 1887;
+    DevInp_s.channelPit_s.prm_s.deadBand_perml_u16 = 20;
+    DevInp_s.channelPit_s.prm_s.flgPosOnly_u8      = 0;
+    DevInp_s.channelPit_s.prm_s.flgReverse_u8      = 1;
+    retVal_u8 += channel_init( &DevInp_s.channelPit_s );
 
-  DevInp_s.channelRol_s.prm_s.lo_us_u16          = 1167;
-  DevInp_s.channelRol_s.prm_s.hi_us_u16          = 1876;
-  DevInp_s.channelRol_s.prm_s.deadBand_perml_u16 = 20;
-  DevInp_s.channelRol_s.prm_s.flgPosOnly_u8      = 0;
-  DevInp_s.channelRol_s.prm_s.flgReverse_u8      = 1;
-  retVal_u8 += channel_init( &DevInp_s.channelRol_s );
+    DevInp_s.channelRol_s.prm_s.lo_us_u16          = 1167;
+    DevInp_s.channelRol_s.prm_s.hi_us_u16          = 1876;
+    DevInp_s.channelRol_s.prm_s.deadBand_perml_u16 = 20;
+    DevInp_s.channelRol_s.prm_s.flgPosOnly_u8      = 0;
+    DevInp_s.channelRol_s.prm_s.flgReverse_u8      = 1;
+    retVal_u8 += channel_init( &DevInp_s.channelRol_s );
 
-  DevInp_s.channelThr_s.prm_s.lo_us_u16          = 1093;
-  DevInp_s.channelThr_s.prm_s.hi_us_u16          = 1746;
-  DevInp_s.channelThr_s.prm_s.deadBand_perml_u16 = 100;
-  DevInp_s.channelThr_s.prm_s.flgPosOnly_u8      = 1;
-  DevInp_s.channelThr_s.prm_s.flgReverse_u8      = 0;
-  retVal_u8 += channel_init( &DevInp_s.channelThr_s );
+    DevInp_s.channelThr_s.prm_s.lo_us_u16          = 1093;
+    DevInp_s.channelThr_s.prm_s.hi_us_u16          = 1746;
+    DevInp_s.channelThr_s.prm_s.deadBand_perml_u16 = 100;
+    DevInp_s.channelThr_s.prm_s.flgPosOnly_u8      = 1;
+    DevInp_s.channelThr_s.prm_s.flgReverse_u8      = 0;
+    retVal_u8 += channel_init( &DevInp_s.channelThr_s );
+    dbgRet( retVal_u8 );
+  }
 
   return retVal_u8;
 }

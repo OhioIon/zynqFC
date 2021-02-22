@@ -3,6 +3,7 @@
 /****************** Includes ********************/
 
 #include "main.h"
+#include "dbg.h"
 #include "Bas.h"
 #include "DevInp.h"
 #include "Veh.h"
@@ -26,6 +27,8 @@ uint8_t Veh_init( void )
 {
   uint8_t retVal_u8 = 0;
 
+  dbg( "\nInit Vehicle Layer\n" );
+
   // Init privates
   memset( &Veh_s.prv_s, 0, sizeof(Veh_s.prv_s) );
 
@@ -33,51 +36,71 @@ uint8_t Veh_init( void )
   memset( &Veh_s.outp_s, 0, sizeof(Veh_s.outp_s) );
 
   // Configure ARM instance
-  Veh_s.arm_s.prm_s.yawThres_perml_s16 = -900;
-  Veh_s.arm_s.prm_s.pitThres_perml_s16 =  900;
-  Veh_s.arm_s.prm_s.rolThres_perml_s16 =  900;
-  Veh_s.arm_s.prm_s.tiCyc_us_u16       =  TASK_TIME_US_D;
-  Veh_s.arm_s.prm_s.tiArmDly_ms_u16    =  500;
-  arm_init( &Veh_s.arm_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- arm ...          " );
+    Veh_s.arm_s.prm_s.yawThres_perml_s16 = -900;
+    Veh_s.arm_s.prm_s.pitThres_perml_s16 =  900;
+    Veh_s.arm_s.prm_s.rolThres_perml_s16 =  900;
+    Veh_s.arm_s.prm_s.tiCyc_us_u16       =  TASK_TIME_US_D;
+    Veh_s.arm_s.prm_s.tiArmDly_ms_u16    =  500;
+    retVal_u8 = arm_init( &Veh_s.arm_s );
+    dbgRet( retVal_u8 );
+  }
 
   // Configure exponential instances
-  Veh_s.expoYaw_s.prm_s.expo_perc_u8 = 10;
-  if( retVal_u8 == 0 ) retVal_u8 += expo_init( &Veh_s.expoYaw_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- expo ...         " );
+    Veh_s.expoYaw_s.prm_s.expo_perc_u8 = 10;
+    retVal_u8 = expo_init( &Veh_s.expoYaw_s );
 
-  Veh_s.expoPit_s.prm_s.expo_perc_u8 = 5;
-  if( retVal_u8 == 0 ) retVal_u8 += expo_init( &Veh_s.expoPit_s );
+    Veh_s.expoPit_s.prm_s.expo_perc_u8 = 5;
+    retVal_u8 += expo_init( &Veh_s.expoPit_s );
 
-  Veh_s.expoRol_s.prm_s.expo_perc_u8 = 5;
-  if( retVal_u8 == 0 ) retVal_u8 += expo_init( &Veh_s.expoRol_s );
+    Veh_s.expoRol_s.prm_s.expo_perc_u8 = 5;
+    retVal_u8 += expo_init( &Veh_s.expoRol_s );
+    dbgRet( retVal_u8 );
+  }
 
   // Configure rate desired instances
-  Veh_s.rateYaw_s.prm_s.rateMax_degps_u16 = 500;
-  if( retVal_u8 == 0 ) retVal_u8 += rateDes_init( &Veh_s.rateYaw_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- rateDes ...      " );
+    Veh_s.rateYaw_s.prm_s.rateMax_degps_u16 = 500;
+    retVal_u8 = rateDes_init( &Veh_s.rateYaw_s );
 
-  Veh_s.ratePit_s.prm_s.rateMax_degps_u16 = 500;
-  if( retVal_u8 == 0 ) retVal_u8 += rateDes_init( &Veh_s.ratePit_s );
+    Veh_s.ratePit_s.prm_s.rateMax_degps_u16 = 500;
+    retVal_u8 += rateDes_init( &Veh_s.ratePit_s );
 
-  Veh_s.rateRol_s.prm_s.rateMax_degps_u16 = 500;
-  if( retVal_u8 == 0 ) retVal_u8 += rateDes_init( &Veh_s.rateRol_s );
+    Veh_s.rateRol_s.prm_s.rateMax_degps_u16 = 500;
+    retVal_u8 += rateDes_init( &Veh_s.rateRol_s );
+    dbgRet( retVal_u8 );
+  }
 
   // Configure PID instances
-  Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 450;
-  Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 0;
-  Veh_s.pidYaw_s.prm_s.kd_perml_u16 = 0;
-  Veh_s.pidYaw_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
-  if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidYaw_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- pid ...          " );
+    Veh_s.pidYaw_s.prm_s.kp_perml_u16 = 450;
+    Veh_s.pidYaw_s.prm_s.ki_perml_u16 = 0;
+    Veh_s.pidYaw_s.prm_s.kd_perml_u16 = 0;
+    Veh_s.pidYaw_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
+    retVal_u8 = pid_init( &Veh_s.pidYaw_s );
 
-  Veh_s.pidPit_s.prm_s.kp_perml_u16 = 400;
-  Veh_s.pidPit_s.prm_s.ki_perml_u16 = 0;
-  Veh_s.pidPit_s.prm_s.kd_perml_u16 = 0;
-  Veh_s.pidPit_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
-  if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidPit_s );
+    Veh_s.pidPit_s.prm_s.kp_perml_u16 = 400;
+    Veh_s.pidPit_s.prm_s.ki_perml_u16 = 0;
+    Veh_s.pidPit_s.prm_s.kd_perml_u16 = 0;
+    Veh_s.pidPit_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
+    retVal_u8 += pid_init( &Veh_s.pidPit_s );
 
-  Veh_s.pidRol_s.prm_s.kp_perml_u16 = 250;
-  Veh_s.pidRol_s.prm_s.ki_perml_u16 = 0;
-  Veh_s.pidRol_s.prm_s.kd_perml_u16 = 0;
-  Veh_s.pidRol_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
-  if( retVal_u8 == 0 ) retVal_u8 += pid_init( &Veh_s.pidRol_s );
+    Veh_s.pidRol_s.prm_s.kp_perml_u16 = 250;
+    Veh_s.pidRol_s.prm_s.ki_perml_u16 = 0;
+    Veh_s.pidRol_s.prm_s.kd_perml_u16 = 0;
+    Veh_s.pidRol_s.prm_s.tiCyc_us_u16 = TASK_TIME_US_D;
+    retVal_u8 += pid_init( &Veh_s.pidRol_s );
+    dbgRet( retVal_u8 );
+  }
 
   return retVal_u8;
 }

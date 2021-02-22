@@ -48,15 +48,18 @@ int main( void )
   usleep( 200000 );
 
   // Initialization
-  printf( "Init ... " );
   intr_disable();
   if( retVal_u8 == 0) retVal_u8 += Bas_init();
   intr_enable();
   if( retVal_u8 == 0) retVal_u8 += DevInp_init();
   if( retVal_u8 == 0) retVal_u8 += Veh_init();
   if( retVal_u8 == 0) retVal_u8 += DevOutp_init();
-  if( retVal_u8 != 0) deadloop();
-  printf("ok\n");
+  if( retVal_u8 != 0)
+  {
+    printf( "Init ... fail\n" );
+    deadloop();
+  }
+  printf( "Init ... ok\n" );
 
   // Start application task timer
   timer_start();
@@ -107,7 +110,7 @@ void app( void )
 // Infinite loop - blinks LED
 static void deadloop( void )
 {
-  printf("FAIL\n");
+  printf( "!!! STOP !!!\n" );
   while( 1 )
   {
     gpio_set_LD4( 1 );

@@ -3,6 +3,7 @@
 /****************** Includes ********************/
 
 #include "main.h"
+#include "dbg.h"
 #include "Bas.h"
 #include "DevInp.h"
 #include "Veh.h"
@@ -26,29 +27,46 @@ uint8_t DevOutp_init( void )
 {
   uint8_t retVal_u8 = 0;
 
+  dbg( "\nInit Device Output Layer\n" );
+
   // Init DSHOT waveform generator
-  DevOutp_s.dshotWaveform_s.prm_s.addrBas_pv = (void*)XPAR_DSHOTWAVEFORM_0_0;
-  DevOutp_s.dshotWaveform_s.prm_s.speed_kbps_u16 = 300; // DShot300
-  retVal_u8 += dshotWaveform_init( &DevOutp_s.dshotWaveform_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- dshotWave ...    " );
+    DevOutp_s.dshotWaveform_s.prm_s.addrBas_pv = (void*)XPAR_DSHOTWAVEFORM_0_0;
+    DevOutp_s.dshotWaveform_s.prm_s.speed_kbps_u16 = 300; // DShot300
+    retVal_u8 = dshotWaveform_init( &DevOutp_s.dshotWaveform_s );
+    dbgRet( retVal_u8 );
+  }
 
   // Init motor DSHOT protocol drivers
-  DevOutp_s.dshotMotFrntLeft_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_0_0;
-  retVal_u8 += dshot_init( &DevOutp_s.dshotMotFrntLeft_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- dshot ...        " );
+    DevOutp_s.dshotMotFrntLeft_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_0_0;
+    retVal_u8 = dshot_init( &DevOutp_s.dshotMotFrntLeft_s );
 
-  DevOutp_s.dshotMotFrntRght_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_1_0;
-  retVal_u8 += dshot_init( &DevOutp_s.dshotMotFrntRght_s );
+    DevOutp_s.dshotMotFrntRght_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_1_0;
+    retVal_u8 += dshot_init( &DevOutp_s.dshotMotFrntRght_s );
 
-  DevOutp_s.dshotMotRearLeft_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_2_0;
-  retVal_u8 += dshot_init( &DevOutp_s.dshotMotRearLeft_s );
+    DevOutp_s.dshotMotRearLeft_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_2_0;
+    retVal_u8 += dshot_init( &DevOutp_s.dshotMotRearLeft_s );
 
-  DevOutp_s.dshotMotRearRght_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_3_0;
-  retVal_u8 += dshot_init( &DevOutp_s.dshotMotRearRght_s );
+    DevOutp_s.dshotMotRearRght_s.prm_s.addrBas_pv = (void*)XPAR_DSHOT_3_0;
+    retVal_u8 += dshot_init( &DevOutp_s.dshotMotRearRght_s );
+    dbgRet( retVal_u8 );
+  }
 
   // Init LED
-  DevOutp_s.led4_s.prm_s.tiCyc_us_u16       = TASK_TIME_US_D;
-  DevOutp_s.led4_s.prm_s.tiBlinkSlow_ms_u16 = 1000;
-  DevOutp_s.led4_s.prm_s.tiBlinkFast_ms_u16 = 200;
-  retVal_u8 += led_init( &DevOutp_s.led4_s );
+  if( retVal_u8 == 0 )
+  {
+    dbg( "- led ...          " );
+    DevOutp_s.led4_s.prm_s.tiCyc_us_u16       = TASK_TIME_US_D;
+    DevOutp_s.led4_s.prm_s.tiBlinkSlow_ms_u16 = 1000;
+    DevOutp_s.led4_s.prm_s.tiBlinkFast_ms_u16 = 200;
+    retVal_u8 = led_init( &DevOutp_s.led4_s );
+    dbgRet( retVal_u8 );
+  }
 
   return retVal_u8;
 }
