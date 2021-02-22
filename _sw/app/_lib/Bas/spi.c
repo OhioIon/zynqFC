@@ -25,7 +25,7 @@ uint8_t spi_init( void )
 {
   int retVal;
 
-  /////////////////// nRF24L01 ///////////////////
+  /////////////////// nRF24L01 - PS SPI1 ///////////////////
   {
     // SPI driver init
     XSpiPs_Config *cfg_ps = XSpiPs_LookupConfig( XPAR_PS7_SPI_1_DEVICE_ID );
