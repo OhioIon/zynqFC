@@ -19,17 +19,17 @@ Xilinx Zynq SoC based all-in-one quadrocopter flight controller. Stereo 720p sid
 - JTAG debugger interface
 - nrFL24L01+ 2.4 GHz Transceiver with SMA antenna connector
 - 2x camera connector for stereo video stream (MIPI CSI-2)
-- AD9361 SDR RF transceiver chipset (2.4 GHz, 2 x 2 MIMO) to stream digital stereo video with 2x SMA antenna connector
+- AD9361 SDR RF transceiver chipset (5.8 GHz, 2 x 2 MIMO) to stream digital stereo video with 2x SMA antenna connector
 - 4x BLDC motor connection jumpers (DShot600 protocol)
 - 1x GPS module connector
 
 <b>FPGA</b>
 - DShot protocol peripheral
 - MIPI CSI-2 receivers for video streams
-- Video compression (MJPEG/H.264/H.265/AV1 -> whatever is feasible in Zynq Artix fabric)
+- Video compression (H.264)
 - Stereo OSD overlay
-- Dynamic video data rate adjust (resize, sub-sampling, reduced color space) depending on VTX signal strength
-- DVB-T2 like VTX modulation in 2.4 GHz ISM band (LDPC, OFDM, IFFT)
+- Dynamic video data rate adjust (resize, sub-sampling, reduced color space) depending on video signal strength
+- VTX modulation with Coded Orthogonal Frequency Division Multiplex (COFDM) (same as used in DVB-T)
 
 <b>Software</b>
 - Flight controller on ARM Cortex-A9 with 8 kHz looptime
