@@ -15,6 +15,7 @@
 #define ENAA        0x01 // Enable 'auto acknowledge' function
 #define EN_RXADDR   0x02 // Enable RX addresses
 #define SETUP_AW    0x03 // Setup of address widths
+#define SETUP_RETR  0x04 // Setup of automatic retransmission
 #define RF_CH       0x05 // RF channel register
 #define RF_SETUP    0x06 // RF setup register
 #define STATUS      0x07 // Status register
@@ -61,9 +62,14 @@ uint8_t nrf24l01_init( void )
   gpio_nRF24L01_CE( 0 );
   usleep( 20000 );
 
-  // Check access to config register
+  // Check access to device
   reg_u8 = nrf24l01_readReg( CONFIG );
   if( reg_u8 == 0xFF )
+  {
+    return 1;
+  }
+  reg_u8 = nrf24l01_readReg( SETUP_RETR );
+  if( reg_u8 != 0x03 )
   {
     return 1;
   }
