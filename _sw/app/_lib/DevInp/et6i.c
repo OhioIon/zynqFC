@@ -35,7 +35,6 @@ uint8_t et6i_init( void )
 void et6i( void )
 {
   uint8_t retVal_u8;
-  uint8_t dat_au8[13];
 
   // State machine
   switch( et6i_s.prv_s.st_e )
@@ -73,26 +72,26 @@ void et6i( void )
   case et6i_stMacWaitForBinding_E: // Receive binding packets from TX
 
     // Check and get new data from RX FIFO
-    retVal_u8 = nrf24l01_getRxData( dat_au8, sizeof(dat_au8) );
+    retVal_u8 = nrf24l01_getRxData( et6i_s.prv_s.dat_au8, sizeof(et6i_s.prv_s.dat_au8) );
 
     // If there is data, perform plausibility check message content
     if( retVal_u8 == 0 )
     {
       // Check band modulation scheme and constants in message
-      if( (dat_au8[3] < 10) || (dat_au8[3] > 83) )
+      if( (et6i_s.prv_s.dat_au8[3] < 10) || (et6i_s.prv_s.dat_au8[3] > 83) )
       {
         // No correct band
         retVal_u8 = 1;
       }
-      else if ( (dat_au8[ 4] != 0x18) ||
-                (dat_au8[ 5] != 0x29) ||
-                (dat_au8[ 6] != 0x00) ||
-                (dat_au8[ 7] != 0x00) ||
-                (dat_au8[ 8] != 0x00) ||
-                (dat_au8[ 9] != 0x00) ||
-                (dat_au8[10] != 0x00) ||
-                (dat_au8[11] != 0x00) ||
-                (dat_au8[12] != 0x00) )
+      else if ( (et6i_s.prv_s.dat_au8[ 4] != 0x18) ||
+                (et6i_s.prv_s.dat_au8[ 5] != 0x29) ||
+                (et6i_s.prv_s.dat_au8[ 6] != 0x00) ||
+                (et6i_s.prv_s.dat_au8[ 7] != 0x00) ||
+                (et6i_s.prv_s.dat_au8[ 8] != 0x00) ||
+                (et6i_s.prv_s.dat_au8[ 9] != 0x00) ||
+                (et6i_s.prv_s.dat_au8[10] != 0x00) ||
+                (et6i_s.prv_s.dat_au8[11] != 0x00) ||
+                (et6i_s.prv_s.dat_au8[12] != 0x00) )
       {
         // No correct constants
         retVal_u8 = 1;
@@ -109,12 +108,12 @@ void et6i( void )
       if( et6i_s.prv_s.bandInfo_u8 == 0 )
       {
         // Store address
-        et6i_s.prv_s.addr_au8[0] = dat_au8[0];
-        et6i_s.prv_s.addr_au8[1] = dat_au8[1];
-        et6i_s.prv_s.addr_au8[2] = dat_au8[2];
+        et6i_s.prv_s.addr_au8[0] = et6i_s.prv_s.dat_au8[0];
+        et6i_s.prv_s.addr_au8[1] = et6i_s.prv_s.dat_au8[1];
+        et6i_s.prv_s.addr_au8[2] = et6i_s.prv_s.dat_au8[2];
 
         // Store band information
-        et6i_s.prv_s.bandInfo_u8 = dat_au8[3];
+        et6i_s.prv_s.bandInfo_u8 = et6i_s.prv_s.dat_au8[3];
 
         // Debug info
         printf("ok\n");
@@ -122,10 +121,10 @@ void et6i( void )
       }
       else // On all other binding packets compare for identical values
       {
-      if( (et6i_s.prv_s.addr_au8[0] != dat_au8[0]) ||
-          (et6i_s.prv_s.addr_au8[1] != dat_au8[1]) ||
-          (et6i_s.prv_s.addr_au8[2] != dat_au8[2]) ||
-          (et6i_s.prv_s.bandInfo_u8 != dat_au8[3]) )
+      if( (et6i_s.prv_s.addr_au8[0] != et6i_s.prv_s.dat_au8[0]) ||
+          (et6i_s.prv_s.addr_au8[1] != et6i_s.prv_s.dat_au8[1]) ||
+          (et6i_s.prv_s.addr_au8[2] != et6i_s.prv_s.dat_au8[2]) ||
+          (et6i_s.prv_s.bandInfo_u8 != et6i_s.prv_s.dat_au8[3]) )
       {
         et6i_s.prv_s.st_e = et6i_stMacBindingAbort_E;
 
@@ -136,10 +135,10 @@ void et6i( void )
            et6i_s.prv_s.addr_au8[1],
            et6i_s.prv_s.addr_au8[2],
            et6i_s.prv_s.bandInfo_u8,
-           dat_au8[0],
-           dat_au8[1],
-           dat_au8[2],
-           dat_au8[3] );
+           et6i_s.prv_s.dat_au8[0],
+           et6i_s.prv_s.dat_au8[1],
+           et6i_s.prv_s.dat_au8[2],
+           et6i_s.prv_s.dat_au8[3] );
       }
       else
       {
@@ -236,13 +235,13 @@ void et6i( void )
 
   case et6i_stMacScanForRxData_E: // Wait until RX data is received on first channel
 
-    retVal_u8 = nrf24l01_getRxData( dat_au8, sizeof(dat_au8) );
+    retVal_u8 = nrf24l01_getRxData( et6i_s.prv_s.dat_au8, sizeof(et6i_s.prv_s.dat_au8) );
     if( retVal_u8 == 0 )
     {
       // Plausibility check on last byte
-      if( (dat_au8[12] == 6                            ) ||
-          (dat_au8[12] == et6i_s.prv_s.currCh1_u8 * 2) ||
-          (dat_au8[12] == et6i_s.prv_s.currCh2_u8 * 2) )
+      if( (et6i_s.prv_s.dat_au8[12] == 6                            ) ||
+          (et6i_s.prv_s.dat_au8[12] == et6i_s.prv_s.currCh1_u8 * 2) ||
+          (et6i_s.prv_s.dat_au8[12] == et6i_s.prv_s.currCh2_u8 * 2) )
       {
         // Value is as expected. Increment count.
         et6i_s.prv_s.cnt_u32++;
@@ -266,33 +265,48 @@ void et6i( void )
   case et6i_stMacRx_E: // Receive and decode channel data
 
     // Get data
-    retVal_u8 = nrf24l01_getRxData( dat_au8, sizeof(dat_au8) );
+    retVal_u8 = nrf24l01_getRxData( et6i_s.prv_s.dat_au8, sizeof(et6i_s.prv_s.dat_au8) );
     if( retVal_u8 == 0 )
     {
-      // Plausibility check on last byte
-      if( (dat_au8[12] == 6                            ) ||
-          (dat_au8[12] == et6i_s.prv_s.currCh1_u8 * 2) ||
-          (dat_au8[12] == et6i_s.prv_s.currCh2_u8 * 2) )
+      // Check if we have some strange packet with all Bytes 0x06
+      uint8_t cnt06_u8;
+      for( cnt06_u8 = 0; cnt06_u8 < sizeof(et6i_s.prv_s.dat_au8); cnt06_u8++ )
       {
-        // Extract data from packet
-        et6i_s.outp_s.ch1_us_u16 = (uint16_t)dat_au8[ 0] << 8 | dat_au8[ 1];
-        et6i_s.outp_s.ch2_us_u16 = (uint16_t)dat_au8[ 2] << 8 | dat_au8[ 3];
-        et6i_s.outp_s.ch3_us_u16 = (uint16_t)dat_au8[ 4] << 8 | dat_au8[ 5];
-        et6i_s.outp_s.ch4_us_u16 = (uint16_t)dat_au8[ 6] << 8 | dat_au8[ 7];
-        et6i_s.outp_s.ch5_us_u16 = (uint16_t)dat_au8[ 8] << 8 | dat_au8[ 9];
-        et6i_s.outp_s.ch6_us_u16 = (uint16_t)dat_au8[10] << 8 | dat_au8[11];
-
-        // Reset timeout count
-        et6i_s.prv_s.cntTimeout_u32 = 0;
-
-        // Increment packet count (for active channel)
-        if( et6i_s.prv_s.cfgTrx_s.ch_u8 == et6i_s.prv_s.currCh1_u8 )
+        if( et6i_s.prv_s.dat_au8[cnt06_u8] != 0x06 )
         {
-          et6i_s.prv_s.cntPktCh1_u32++;
+          // Stop on first Byte != 0x06 to not waste time
+          break;
         }
-        else
+      }
+
+      // Only process packet if it not the strange one
+      if( cnt06_u8 != sizeof(et6i_s.prv_s.dat_au8) )
+      {
+        // Plausibility check on last byte
+        if( (et6i_s.prv_s.dat_au8[12] == 6                            ) ||
+            (et6i_s.prv_s.dat_au8[12] == et6i_s.prv_s.currCh1_u8 * 2) ||
+            (et6i_s.prv_s.dat_au8[12] == et6i_s.prv_s.currCh2_u8 * 2) )
         {
-          et6i_s.prv_s.cntPktCh2_u32++;
+          // Extract data from packet
+          et6i_s.outp_s.ch1_us_u16 = (uint16_t)et6i_s.prv_s.dat_au8[ 0] << 8 | et6i_s.prv_s.dat_au8[ 1];
+          et6i_s.outp_s.ch2_us_u16 = (uint16_t)et6i_s.prv_s.dat_au8[ 2] << 8 | et6i_s.prv_s.dat_au8[ 3];
+          et6i_s.outp_s.ch3_us_u16 = (uint16_t)et6i_s.prv_s.dat_au8[ 4] << 8 | et6i_s.prv_s.dat_au8[ 5];
+          et6i_s.outp_s.ch4_us_u16 = (uint16_t)et6i_s.prv_s.dat_au8[ 6] << 8 | et6i_s.prv_s.dat_au8[ 7];
+          et6i_s.outp_s.ch5_us_u16 = (uint16_t)et6i_s.prv_s.dat_au8[ 8] << 8 | et6i_s.prv_s.dat_au8[ 9];
+          et6i_s.outp_s.ch6_us_u16 = (uint16_t)et6i_s.prv_s.dat_au8[10] << 8 | et6i_s.prv_s.dat_au8[11];
+
+          // Reset timeout count
+          et6i_s.prv_s.cntTimeout_u32 = 0;
+
+          // Increment packet count (for active channel)
+          if( et6i_s.prv_s.cfgTrx_s.ch_u8 == et6i_s.prv_s.currCh1_u8 )
+          {
+            et6i_s.prv_s.cntPktCh1_u32++;
+          }
+          else
+          {
+            et6i_s.prv_s.cntPktCh2_u32++;
+          }
         }
       }
     }

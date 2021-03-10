@@ -48,6 +48,8 @@ typedef struct et6i_prv_s
   uint8_t currCh1_u8;
   uint8_t currCh2_u8;
 
+  uint8_t dat_au8[13];
+
   uint32_t cnt_u32;
   uint32_t cntTimeout_u32;
 
